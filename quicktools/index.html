@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassomorphic Tool Directory</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Extra styles for tabs */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 0 20px 10px 20px; /* Add padding for scroll/visual */
+        }
+        .category-tab {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .category-tab:hover, .category-tab.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="glass-header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <h1>Crystal Tools</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search 100+ tools...">
+            </div>
+        </header>
 
+        <div class="category-tabs" id="category-tabs">
+            <button class="category-tab active" data-cat="All">All</button>
+            <button class="category-tab" data-cat="Text">Text</button>
+            <button class="category-tab" data-cat="Math">Math</button>
+            <button class="category-tab" data-cat="Dev">Developer</button>
+            <button class="category-tab" data-cat="Converter">Converters</button>
+            <button class="category-tab" data-cat="Game">Random/Game</button>
+            <button class="category-tab" data-cat="Time">Time</button>
+            <button class="category-tab" data-cat="Security">Security</button>
+            <button class="category-tab" data-cat="Color">Color</button>
+        </div>
+
+        <div class="main-container">
+            <main id="content-area">
+                <section id="dashboard" class="dashboard-grid">
+                    <!-- Tools injected by script.js -->
+                </section>
+
+                <section id="tool-view" style="display: none;">
+                    <div class="tool-header">
+                        <button id="back-btn" class="glass-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Back
+                        </button>
+                        <h2 id="tool-title">Tool Name</h2>
+                    </div>
+                    <div id="tool-content">
+                        <!-- Tool content injected here -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Inline script for tabs logic since script.js is getting huge and complex
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.category-tab');
+            const dashboard = document.getElementById('dashboard');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update active state
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const cat = tab.getAttribute('data-cat');
+                    filterByCategory(cat);
+                });
+            });
+
+            function filterByCategory(category) {
+                const cards = document.querySelectorAll('.tool-card');
+                cards.forEach(card => {
+                    const cardCat = card.getAttribute('data-category');
+                    if (category === 'All' || cardCat === category || (!cardCat && category === 'All')) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
