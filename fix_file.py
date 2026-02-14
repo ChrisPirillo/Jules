@@ -26,4 +26,4 @@ def check_file(filename):
     else:
         print("Braces balanced.")
 
-check_file('script.js')
+check_file('quicktools/script.js')

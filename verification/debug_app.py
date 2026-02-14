@@ -13,7 +13,7 @@ def run():
 
         page.on("pageerror", log_error)
 
-        page.goto("http://localhost:8080/index.html")
+        page.goto("http://localhost:8080/quicktools/index.html")
         page.wait_for_timeout(2000) # Wait a bit for JS to run
 
         # Check if .tool-card exists

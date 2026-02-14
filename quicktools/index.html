@@ -3,7 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glassomorphic Tool Directory</title>
+    <title>Crystal Tools - The Glassomorphic Web Utility Hub</title>
+    <meta name="description" content="A beautiful collection of 100+ free online web tools including calculators, converters, generators, and developers utilities. Built with glassmorphism design.">
+    <meta name="keywords" content="web tools, online utilities, calculator, unit converter, password generator, base64 encoder, json formatter, free tools, glassmorphism">
+    <meta name="author" content="Crystal Tools">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://crystaltools.app/">
+    <meta property="og:title" content="Crystal Tools - 100+ Free Web Utilities">
+    <meta property="og:description" content="Access 100+ essential web tools in one beautiful glassomorphic interface. Calculators, converters, dev tools, and more.">
+    <meta property="og:image" content="https://crystaltools.app/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://crystaltools.app/">
+    <meta property="twitter:title" content="Crystal Tools - 100+ Free Web Utilities">
+    <meta property="twitter:description" content="Access 100+ essential web tools in one beautiful glassomorphic interface. Calculators, converters, dev tools, and more.">
+    <meta property="twitter:image" content="https://crystaltools.app/og-image.jpg">
+
+    <link rel="canonical" href="https://crystaltools.app/">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +68,7 @@
             </div>
         </header>
 
-        <div class="category-tabs" id="category-tabs">
+        <nav class="category-tabs" id="category-tabs" aria-label="Tool Categories">
             <button class="category-tab active" data-cat="All">All</button>
             <button class="category-tab" data-cat="Text">Text</button>
             <button class="category-tab" data-cat="Math">Math</button>
@@ -59,7 +78,9 @@
             <button class="category-tab" data-cat="Time">Time</button>
             <button class="category-tab" data-cat="Security">Security</button>
             <button class="category-tab" data-cat="Color">Color</button>
-        </div>
+            <button class="category-tab" data-cat="Health">Health</button>
+            <button class="category-tab" data-cat="Science">Science</button>
+        </nav>
 
         <div class="main-container">
             <main id="content-area">
@@ -69,7 +90,7 @@
 
                 <section id="tool-view" style="display: none;">
                     <div class="tool-header">
-                        <button id="back-btn" class="glass-btn">
+                        <button id="back-btn" class="glass-btn" aria-label="Back to Dashboard">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                             Back
                         </button>
@@ -84,7 +105,7 @@
     </div>
     <script src="script.js"></script>
     <script>
-        // Inline script for tabs logic since script.js is getting huge and complex
+        // Inline script for tabs logic
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.category-tab');
             const dashboard = document.getElementById('dashboard');
@@ -104,6 +125,7 @@
                 const cards = document.querySelectorAll('.tool-card');
                 cards.forEach(card => {
                     const cardCat = card.getAttribute('data-category');
+                    // Check if tool matches category (Health/Science might be new, ensure they work)
                     if (category === 'All' || cardCat === category || (!cardCat && category === 'All')) {
                         card.style.display = 'flex';
                     } else {
