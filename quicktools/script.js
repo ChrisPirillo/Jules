@@ -356,17 +356,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showDashboard() {
+        function showDashboard() {
         toolView.style.display = 'none';
         dashboard.style.display = 'grid';
         if(categoryTabs) categoryTabs.style.display = 'flex';
         toolContent.innerHTML = '';
         searchInput.value = '';
+
+        // Reset Theme
+        const app = document.getElementById('app');
+        app.className = ''; // Reset
+
         document.title = 'Crystal Tools - The Glassomorphic Web Utility Hub';
         history.pushState(null, null, ' ');
     }
 
-    function showTool(toolId) {
+        function showTool(toolId) {
         const tool = toolRegistry[toolId];
         if (tool) {
             dashboard.style.display = 'none';
@@ -374,8 +379,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if(categoryTabs) categoryTabs.style.display = 'none';
             toolTitle.textContent = tool.name;
             toolContent.innerHTML = '';
+
+            // Dynamic Theme
+            const app = document.getElementById('app');
+            app.className = ''; // Reset
+            const cat = tool.category;
+            let theme = 'default';
+            if (cat === 'Text') theme = 'blue';
+            else if (cat === 'Math' || cat === 'Finance') theme = 'purple';
+            else if (cat === 'Dev') theme = 'green';
+            else if (cat === 'Converter') theme = 'orange';
+            else if (cat === 'Game' || cat === 'Color') theme = 'pink';
+            else if (cat === 'Health' || cat === 'Science') theme = 'red';
+            else if (cat === 'Security') theme = 'green';
+
+            app.classList.add('theme-' + theme);
+
             tool.render(toolContent);
             document.title = tool.name + ' - Crystal Tools';
+
             if (window.location.hash !== '#' + toolId) {
                 history.pushState(null, null, '#' + toolId);
             }
@@ -423,4 +445,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+
+    // --- Update Tool Count ---
+    const countBadge = document.getElementById('tool-count-badge');
+    if (countBadge) {
+        const count = Object.keys(toolRegistry).length;
+        countBadge.textContent = `${count} Tools`;
+        countBadge.style.display = 'inline-block';
+        document.getElementById('search-input').placeholder = `Search ${count} tools...`;
+    }
+
+    // --- Batch 6: Fun & More Text Tools ---
+    createGeneratorTool('random-quote', 'Random Quote', 'Game', 'Get a random quote.', 'Get Quote', () => {
+        const quotes = [
+            "The only way to do great work is to love what you do. - Steve Jobs",
+            "Innovation distinguishes between a leader and a follower. - Steve Jobs",
+            "Stay hungry, stay foolish. - Steve Jobs",
+            "Code is like humor. When you have to explain it, it’s bad. - Cory House",
+            "First, solve the problem. Then, write the code. - John Johnson",
+            "Simplicity is the soul of efficiency. - Austin Freeman"
+        ];
+        return quotes[Math.floor(Math.random() * quotes.length)];
+    });
+
+    createGeneratorTool('dad-joke', 'Dad Joke', 'Game', 'Get a random dad joke.', 'Get Joke', () => {
+        const jokes = [
+            "I'm afraid for the calendar. Its days are numbered.",
+            "My wife said I should do lunges to stay in shape. That would be a big step forward.",
+            "Why do fathers take an extra pair of socks when they go golfing? In case they get a hole in one!",
+            "Singing in the shower is fun until you get soap in your mouth. Then it's a soap opera.",
+            "What do a tick and the Eiffel Tower have in common? They're both Paris sites."
+        ];
+        return jokes[Math.floor(Math.random() * jokes.length)];
+    });
+
+    createSimpleTextTool('reverse-lines', 'Reverse Line Order', 'Text', 'Reverse lines top-bottom.', (text) => text.split('\n').reverse().join('\n'));
+    createSimpleTextTool('shuffle-words', 'Shuffle Words', 'Text', 'Shuffle words in text.', (text) => text.split(' ').sort(() => 0.5 - Math.random()).join(' '));
+    createSimpleTextTool('alternating-case', 'Alternating Case', 'Text', 'tExT lIkE tHiS.', (text) => text.split('').map((c,i) => i%2 ? c.toUpperCase() : c.toLowerCase()).join(''));
+    createSimpleTextTool('sponge-case', 'Spongebob Case', 'Text', 'mOcKiNg tExT.', (text) => text.split('').map(c => Math.random() > 0.5 ? c.toUpperCase() : c.toLowerCase()).join(''));
+
+    createMathTool('prime-check', 'Prime Checker', 'Math', 'Is N prime?', [{key:'n', label:'Number'}], (v) => {
+        const n = parseInt(v.n);
+        if (n <= 1) return 'No';
+        if (n <= 3) return 'Yes';
+        if (n % 2 === 0 || n % 3 === 0) return 'No';
+        for (let i = 5; i * i <= n; i += 6) {
+            if (n % i === 0 || n % (i + 2) === 0) return 'No';
+        }
+        return 'Yes';
+    });
+
+    createMathTool('even-odd', 'Even/Odd Checker', 'Math', 'Is N even or odd?', [{key:'n', label:'Number'}], (v) => v.n % 2 === 0 ? 'Even' : 'Odd');
+
+    // Refresh
+    renderDashboard();
+    if (countBadge) {
+        const newCount = Object.keys(toolRegistry).length;
+        countBadge.textContent = `${newCount} Tools`;
+        document.getElementById('search-input').placeholder = `Search ${newCount} tools...`;
+    }
 });
