@@ -481,3 +481,19 @@ body {
     background: rgba(239, 68, 68, 0.15);
     border-color: rgba(239, 68, 68, 0.3);
 }
+
+/* High Contrast Inputs */
+.glass-input, .glass-textarea, .glass-select {
+    color: #ffffff !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.glass-input::placeholder, .glass-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Remove Logo Icon */
+.logo svg {
+    display: none !important;
+}

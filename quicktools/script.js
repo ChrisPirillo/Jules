@@ -504,4 +504,176 @@ document.addEventListener('DOMContentLoaded', () => {
         countBadge.textContent = `${newCount} Tools`;
         document.getElementById('search-input').placeholder = `Search ${newCount} tools...`;
     }
+
+    // --- Batch 7: High Volume & Complex Tools ---
+
+    // Finance
+    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment (est).',
+        [{key:'p', label:'Loan Amount'}, {key:'r', label:'Annual Rate %'}, {key:'y', label:'Years'}],
+        (v) => {
+            const r = v.r / 100 / 12;
+            const n = v.y * 12;
+            return (v.p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)).toFixed(2);
+        });
+
+    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.',
+        [{key:'inv', label:'Investment'}, {key:'ret', label:'Return Amount'}],
+        (v) => (((v.ret - v.inv) / v.inv) * 100).toFixed(2) + '%');
+
+    createMathTool('salary-calc', 'Salary Converter', 'Finance', 'Annual to Monthly/Hourly.',
+        [{key:'annual', label:'Annual Salary'}],
+        (v) => `Monthly: ${(v.annual/12).toFixed(2)}\nHourly (2080h): ${(v.annual/2080).toFixed(2)}`);
+
+    // Dev/Data
+    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Simple XML Indent.', (text) => {
+        let formatted = '', indent= '';
+        text.split(/>\s*</).forEach(node => {
+            if (node.match( /^\/\w/ )) indent = indent.substring(2);
+            formatted += indent + '<' + node + '>\r\n';
+            if (node.match( /^<?\w[^>]*[^\/]$/ )) indent += '  ';
+        });
+        return formatted.substring(1, formatted.length-3);
+    });
+
+    createSimpleTextTool('sql-minify', 'SQL Minifier', 'Dev', 'Remove whitespace from SQL.', (text) => text.replace(/\s+/g, ' ').trim());
+
+    // Image (Canvas based)
+    // We need a custom render function for Image tools
+    function registerImageTool(id, name, desc, actionName, processFn) {
+        registerTool(id, name, 'Image', desc,
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+            (container) => {
+                container.innerHTML = `
+                    <div class="glass-panel" style="text-align: center;">
+                        <input type="file" id="${id}-file" accept="image/*" style="display: none;">
+                        <button id="${id}-upload" class="glass-btn" style="width: 100%; margin-bottom: 10px;">Upload Image</button>
+                        <canvas id="${id}-canvas" style="max-width: 100%; max-height: 300px; display: none; border: 1px solid rgba(255,255,255,0.2);"></canvas>
+                        <div id="${id}-controls" style="margin-top: 10px; display: none;">
+                            <button id="${id}-process" class="glass-btn-primary">${actionName}</button>
+                            <a id="${id}-download" class="glass-btn" style="margin-top: 5px; display: inline-flex; justify-content: center; text-decoration: none;">Download</a>
+                        </div>
+                    </div>
+                `;
+
+                const fileInput = document.getElementById(`${id}-file`);
+                const uploadBtn = document.getElementById(`${id}-upload`);
+                const canvas = document.getElementById(`${id}-canvas`);
+                const ctx = canvas.getContext('2d');
+                const controls = document.getElementById(`${id}-controls`);
+                const processBtn = document.getElementById(`${id}-process`);
+                const downloadLink = document.getElementById(`${id}-download`);
+
+                let img = new Image();
+
+                uploadBtn.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            img.onload = () => {
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                ctx.drawImage(img, 0, 0);
+                                canvas.style.display = 'block';
+                                controls.style.display = 'block';
+                            }
+                            img.src = event.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                processBtn.addEventListener('click', () => {
+                    processFn(ctx, canvas.width, canvas.height);
+                    downloadLink.href = canvas.toDataURL();
+                    downloadLink.download = `${id}-result.png`;
+                });
+            }
+        );
+    }
+
+    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert image to B&W.', 'Apply Grayscale', (ctx, w, h) => {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = avg; // R
+            data[i + 1] = avg; // G
+            data[i + 2] = avg; // B
+        }
+        ctx.putImageData(imgData, 0, 0);
+    });
+
+    registerImageTool('img-invert', 'Invert Colors', 'Invert image colors.', 'Invert', (ctx, w, h) => {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            data[i] = 255 - data[i];     // R
+            data[i + 1] = 255 - data[i + 1]; // G
+            data[i + 2] = 255 - data[i + 2]; // B
+        }
+        ctx.putImageData(imgData, 0, 0);
+    });
+
+    // Misc
+    registerTool('qr-gen', 'QR Code Generator', 'Misc', 'Generate QR Code.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="text-align: center;">
+                    <input type="text" id="qr-input" class="glass-input" placeholder="Enter URL or Text">
+                    <button id="qr-btn" class="glass-btn-primary" style="margin: 10px 0;">Generate QR</button>
+                    <div id="qr-result" style="margin-top: 20px;"></div>
+                </div>
+            `;
+            document.getElementById('qr-btn').addEventListener('click', () => {
+                const text = document.getElementById('qr-input').value;
+                if(text) {
+                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+                    document.getElementById('qr-result').innerHTML = `<img src="${url}" alt="QR Code" style="border-radius: 8px;">`;
+                }
+            });
+        }
+    );
+
+    registerTool('speed-test', 'Internet Speed (Sim)', 'Misc', 'Simulated Speed Test.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M12 2v20"/><path d="M4.93 4.93l14.14 14.14"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="text-align: center;">
+                    <h3 id="st-status">Ready</h3>
+                    <div style="font-size: 3rem; font-weight: bold; margin: 20px 0;" id="st-val">0.0</div>
+                    <div style="color: rgba(255,255,255,0.7);">Mbps</div>
+                    <button id="st-btn" class="glass-btn-primary" style="margin-top: 20px;">Start Test</button>
+                </div>
+            `;
+            document.getElementById('st-btn').addEventListener('click', () => {
+                const val = document.getElementById('st-val');
+                const status = document.getElementById('st-status');
+                status.textContent = 'Testing...';
+                let speed = 0;
+                let target = Math.random() * 100 + 50; // Mock target 50-150 Mbps
+                let interval = setInterval(() => {
+                    speed += (target - speed) * 0.1;
+                    val.textContent = speed.toFixed(1);
+                    if(Math.abs(target - speed) < 0.5) {
+                        clearInterval(interval);
+                        status.textContent = 'Done';
+                        val.textContent = target.toFixed(1);
+                    }
+                }, 100);
+            });
+        }
+    );
+
+    // Refresh
+    renderDashboard();
+    if (countBadge) {
+        const newCount = Object.keys(toolRegistry).length;
+        countBadge.textContent = `${newCount} Tools`;
+        document.getElementById('search-input').placeholder = `Search ${newCount} tools...`;
+    }
+
 });
