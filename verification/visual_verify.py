@@ -7,17 +7,17 @@ def run():
         page.goto("http://localhost:8080/quicktools/index.html")
         page.wait_for_selector(".tool-card")
 
-        # 1. Screenshot Dashboard with Count & Tabs
-        page.screenshot(path="verification/dashboard_batch7.png")
+        # 1. Screenshot Dashboard with Count & Tabs (No horizontal scroll logic check visually)
+        page.screenshot(path="verification/dashboard_single.png")
         print("Dashboard screenshot saved.")
 
-        # 2. Open Mortgage Calc (Finance)
-        page.click(".tool-card[data-tool='mortgage-calc']")
-        page.wait_for_selector("#mortgage-calc-p")
+        # 2. Open Regex Tool
+        page.click(".tool-card[data-tool='regex-real']")
+        page.wait_for_selector("#rx-pattern")
 
-        # Take screenshot of Tool View (Inputs should be white text on dark bg)
-        page.screenshot(path="verification/tool_inputs.png")
-        print("Tool inputs screenshot saved.")
+        # Take screenshot of Tool View (Inputs should have same height as buttons)
+        page.screenshot(path="verification/tool_ui_single.png")
+        print("Tool UI screenshot saved.")
 
         browser.close()
 
