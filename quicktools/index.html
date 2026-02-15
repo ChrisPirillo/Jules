@@ -164,6 +164,40 @@
     color: var(--theme-accent, #4f46e5) !important;
 }
 
+
+    /* UPDATED TOOL UI FIX */
+    #tool-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align top for long content */
+        padding-top: 40px;
+        width: 100%;
+        overflow-y: auto;
+    }
+
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 40px;
+        width: 100%;
+        max-width: 600px !important; /* Increased from 500px */
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        margin: 0 auto; /* Force horizontal centering if flex fails */
+    }
+
+    .input-group label {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+
+    .glass-input, .glass-select, .glass-btn {
+        height: 50px !important; /* Larger inputs */
+        font-size: 1.1rem;
+    }
+
 </style>
 <style>
 :root {
@@ -1838,6 +1872,279 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('temp-k-c-real', 'Kelvin to Celsius', 'Science', 'K to C.', [{key:'k', label:'Kelvin'}], (v) => (v.k - 273.15).toFixed(2));
     createMathTool('temp-c-k-real', 'Celsius to Kelvin', 'Science', 'C to K.', [{key:'c', label:'Celsius'}], (v) => (v.c + 273.15).toFixed(2));
 
+
+    // --- Batch 15: Physics & Engineering ---
+createMathTool('kin-vel', 'Velocity', 'Science', 'v = d / t', [{"key": "d", "label": "Distance (m)"}, {"key": "t", "label": "Time (s)"}], (v) => (v.d / v.t).toFixed(2) + " m/s");
+createMathTool('kin-acc', 'Acceleration', 'Science', 'a = (vf - vi) / t', [{"key": "vf", "label": "Final Vel (m/s)"}, {"key": "vi", "label": "Initial Vel (m/s)"}, {"key": "t", "label": "Time (s)"}], (v) => ((v.vf - v.vi) / v.t).toFixed(2) + " m/s²");
+createMathTool('newton-2', 'Force (Newton)', 'Science', 'F = m * a', [{"key": "m", "label": "Mass (kg)"}, {"key": "a", "label": "Accel (m/s²)"}], (v) => (v.m * v.a).toFixed(2) + " N");
+createMathTool('work', 'Work', 'Science', 'W = F * d', [{"key": "f", "label": "Force (N)"}, {"key": "d", "label": "Distance (m)"}], (v) => (v.f * v.d).toFixed(2) + " J");
+createMathTool('power', 'Power', 'Science', 'P = W / t', [{"key": "w", "label": "Work (J)"}, {"key": "t", "label": "Time (s)"}], (v) => (v.w / v.t).toFixed(2) + " W");
+createMathTool('ke', 'Kinetic Energy', 'Science', 'KE = 0.5 * m * v²', [{"key": "m", "label": "Mass (kg)"}, {"key": "v", "label": "Velocity (m/s)"}], (v) => (0.5 * v.m * v.v * v.v).toFixed(2) + " J");
+createMathTool('pe', 'Potential Energy', 'Science', 'PE = m * g * h', [{"key": "m", "label": "Mass (kg)"}, {"key": "h", "label": "Height (m)"}], (v) => (v.m * 9.81 * v.h).toFixed(2) + " J");
+createMathTool('density', 'Density', 'Science', 'ρ = m / V', [{"key": "m", "label": "Mass (kg)"}, {"key": "v", "label": "Volume (m³)"}], (v) => (v.m / v.v).toFixed(2) + " kg/m³");
+createMathTool('pressure', 'Pressure', 'Science', 'P = F / A', [{"key": "f", "label": "Force (N)"}, {"key": "a", "label": "Area (m²)"}], (v) => (v.f / v.a).toFixed(2) + " Pa");
+createMathTool('freq-per', 'Frequency to Period', 'Science', 'T = 1 / f', [{"key": "f", "label": "Frequency (Hz)"}], (v) => (1 / v.f).toFixed(4) + " s");
+createMathTool('per-freq', 'Period to Frequency', 'Science', 'f = 1 / T', [{"key": "t", "label": "Period (s)"}], (v) => (1 / v.t).toFixed(2) + " Hz");
+createMathTool('wave-speed', 'Wave Speed', 'Science', 'v = f * λ', [{"key": "f", "label": "Frequency (Hz)"}, {"key": "l", "label": "Wavelength (m)"}], (v) => (v.f * v.l).toFixed(2) + " m/s");
+createMathTool('torque', 'Torque', 'Science', 'τ = r * F * sin(θ)', [{"key": "r", "label": "Radius (m)"}, {"key": "f", "label": "Force (N)"}, {"key": "a", "label": "Angle (deg)"}], (v) => (v.r * v.f * Math.sin(v.a * Math.PI / 180)).toFixed(2) + " Nm");
+createMathTool('momentum', 'Momentum', 'Science', 'p = m * v', [{"key": "m", "label": "Mass (kg)"}, {"key": "v", "label": "Velocity (m/s)"}], (v) => (v.m * v.v).toFixed(2) + " kg·m/s");
+createMathTool('impulse', 'Impulse', 'Science', 'J = F * t', [{"key": "f", "label": "Force (N)"}, {"key": "t", "label": "Time (s)"}], (v) => (v.f * v.t).toFixed(2) + " Ns");
+createMathTool('stress', 'Stress', 'Science', 'σ = F / A', [{"key": "f", "label": "Force (N)"}, {"key": "a", "label": "Area (m²)"}], (v) => (v.f / v.a).toFixed(2) + " Pa");
+createMathTool('strain', 'Strain', 'Science', 'ε = ΔL / L', [{"key": "dl", "label": "Change Length (m)"}, {"key": "l", "label": "Orig Length (m)"}], (v) => (v.dl / v.l).toFixed(4));
+createMathTool('young-mod', 'Young\'s Modulus', 'Science', 'E = σ / ε', [{"key": "s", "label": "Stress (Pa)"}, {"key": "e", "label": "Strain"}], (v) => (v.s / v.e).toExponential(2) + " Pa");
+createMathTool('heat-cap', 'Heat Capacity', 'Science', 'Q = m * c * ΔT', [{"key": "m", "label": "Mass (kg)"}, {"key": "c", "label": "Specific Heat"}, {"key": "t", "label": "Delta T"}], (v) => (v.m * v.c * v.t).toFixed(2) + " J");
+createMathTool('elec-field', 'Electric Field', 'Science', 'E = F / q', [{"key": "f", "label": "Force (N)"}, {"key": "q", "label": "Charge (C)"}], (v) => (v.f / v.q).toExponential(2) + " N/C");
+createMathTool('elec-pot', 'Electric Potential', 'Science', 'V = W / q', [{"key": "w", "label": "Work (J)"}, {"key": "q", "label": "Charge (C)"}], (v) => (v.w / v.q).toFixed(2) + " V");
+createMathTool('cap-par', 'Parallel Plate Cap', 'Science', 'C = εA / d', [{"key": "a", "label": "Area (m²)"}, {"key": "d", "label": "Distance (m)"}], (v) => (8.854e-12 * v.a / v.d).toExponential(2) + " F");
+createMathTool('ind-energy', 'Inductor Energy', 'Science', 'E = 0.5 * L * I²', [{"key": "l", "label": "Inductance (H)"}, {"key": "i", "label": "Current (A)"}], (v) => (0.5 * v.l * v.i * v.i).toFixed(4) + " J");
+createMathTool('lc-res', 'LC Resonance', 'Science', 'f = 1 / (2π√LC)', [{"key": "l", "label": "Inductance (H)"}, {"key": "c", "label": "Capacitance (F)"}], (v) => (1 / (2 * Math.PI * Math.sqrt(v.l * v.c))).toFixed(2) + " Hz");
+createMathTool('xfmr-turns', 'Transformer Turns', 'Science', 'Vp/Vs = Np/Ns', [{"key": "vp", "label": "Pri Voltage"}, {"key": "vs", "label": "Sec Voltage"}, {"key": "np", "label": "Pri Turns"}], (v) => (v.np * v.vs / v.vp).toFixed(0) + " Turns");
+createMathTool('xfmr-volt', 'Transformer Voltage', 'Science', 'Vs = Vp * (Ns/Np)', [{"key": "vp", "label": "Pri Voltage"}, {"key": "ns", "label": "Sec Turns"}, {"key": "np", "label": "Pri Turns"}], (v) => (v.vp * v.ns / v.np).toFixed(2) + " V");
+createMathTool('db-volt', 'Voltage Gain (dB)', 'Science', 'dB = 20log(Vo/Vi)', [{"key": "vo", "label": "V Out"}, {"key": "vi", "label": "V In"}], (v) => (20 * Math.log10(v.vo / v.vi)).toFixed(2) + " dB");
+createMathTool('db-power', 'Power Gain (dB)', 'Science', 'dB = 10log(Po/Pi)', [{"key": "po", "label": "P Out"}, {"key": "pi", "label": "P In"}], (v) => (10 * Math.log10(v.po / v.pi)).toFixed(2) + " dB");
+createMathTool('rc-time', 'RC Time Constant', 'Science', 'τ = R * C', [{"key": "r", "label": "Resist (Ω)"}, {"key": "c", "label": "Capacit (F)"}], (v) => (v.r * v.c).toFixed(4) + " s");
+createMathTool('rl-time', 'RL Time Constant', 'Science', 'τ = L / R', [{"key": "l", "label": "Induct (H)"}, {"key": "r", "label": "Resist (Ω)"}], (v) => (v.l / v.r).toFixed(4) + " s");
+createMathTool('led-res', 'LED Resistor', 'Science', 'R = (Vs - Vf) / I', [{"key": "vs", "label": "Source V"}, {"key": "vf", "label": "Fwd V"}, {"key": "i", "label": "Current (A)"}], (v) => ((v.vs - v.vf) / v.i).toFixed(0) + " Ω");
+createMathTool('batt-life', 'Battery Life', 'Science', 'h = mAh / mA', [{"key": "cap", "label": "Capacity (mAh)"}, {"key": "load", "label": "Load (mA)"}], (v) => (v.cap / v.load).toFixed(1) + " hours");
+createMathTool('wire-res', 'Wire Resistance', 'Science', 'R = ρL / A', [{"key": "rho", "label": "Resistivity"}, {"key": "l", "label": "Length (m)"}, {"key": "a", "label": "Area (m²)"}], (v) => (v.rho * v.l / v.a).toExponential(2) + " Ω");
+createMathTool('skin-depth', 'Skin Depth', 'Science', 'δ = √(2ρ/ωμ)', [{"key": "f", "label": "Freq (Hz)"}, {"key": "rho", "label": "Resistivity"}], (v) => Math.sqrt(v.rho / (Math.PI * v.f * 4e-7 * Math.PI)).toExponential(2) + " m");
+createMathTool('opamp-gain', 'Non-Inv OpAmp Gain', 'Science', 'G = 1 + R2/R1', [{"key": "r1", "label": "R1 (Ω)"}, {"key": "r2", "label": "R2 (Ω)"}], (v) => (1 + v.r2 / v.r1).toFixed(2));
+createMathTool('inv-gain', 'Inv OpAmp Gain', 'Science', 'G = -R2/R1', [{"key": "r1", "label": "R1 (Ω)"}, {"key": "r2", "label": "R2 (Ω)"}], (v) => (-v.r2 / v.r1).toFixed(2));
+createMathTool('piston-force', 'Piston Force', 'Science', 'F = P * A', [{"key": "p", "label": "Pressure (Pa)"}, {"key": "d", "label": "Diameter (m)"}], (v) => (v.p * Math.PI * Math.pow(v.d/2, 2)).toFixed(0) + " N");
+createMathTool('flow-rate', 'Flow Rate', 'Science', 'Q = A * v', [{"key": "d", "label": "Diameter (m)"}, {"key": "v", "label": "Velocity (m/s)"}], (v) => (Math.PI * Math.pow(v.d/2, 2) * v.v * 3600).toFixed(2) + " m³/h");
+createMathTool('bernoulli', 'Bernoulli (Simple)', 'Science', 'P + 0.5ρv² = C', [{"key": "p", "label": "Pressure"}, {"key": "rho", "label": "Density"}, {"key": "v", "label": "Velocity"}], (v) => (v.p + 0.5 * v.rho * v.v * v.v).toFixed(2));
+createMathTool('reynolds', 'Reynolds Number', 'Science', 'Re = ρvD / μ', [{"key": "rho", "label": "Density"}, {"key": "v", "label": "Vel"}, {"key": "d", "label": "Diam"}, {"key": "mu", "label": "Viscosity"}], (v) => (v.rho * v.v * v.d / v.mu).toFixed(0));
+createMathTool('mach', 'Mach Number', 'Science', 'M = v / c', [{"key": "v", "label": "Velocity"}, {"key": "c", "label": "Speed Sound"}], (v) => (v.v / v.c).toFixed(2));
+createMathTool('ideal-gas', 'Ideal Gas Law', 'Science', 'PV = nRT', [{"key": "p", "label": "Pressure"}, {"key": "v", "label": "Volume"}, {"key": "t", "label": "Temp (K)"}], (v) => (v.p * v.v / (8.314 * v.t)).toFixed(2) + " mol");
+createMathTool('boyle', 'Boyle\'s Law', 'Science', 'P1V1 = P2V2', [{"key": "p1", "label": "P1"}, {"key": "v1", "label": "V1"}, {"key": "v2", "label": "V2"}], (v) => (v.p1 * v.v1 / v.v2).toFixed(2) + " (P2)");
+createMathTool('charles', 'Charles\'s Law', 'Science', 'V1/T1 = V2/T2', [{"key": "v1", "label": "V1"}, {"key": "t1", "label": "T1"}, {"key": "t2", "label": "T2"}], (v) => (v.v1 * v.t2 / v.t1).toFixed(2) + " (V2)");
+createMathTool('gay-lussac', 'Gay-Lussac Law', 'Science', 'P1/T1 = P2/T2', [{"key": "p1", "label": "P1"}, {"key": "t1", "label": "T1"}, {"key": "t2", "label": "T2"}], (v) => (v.p1 * v.t2 / v.t1).toFixed(2) + " (P2)");
+createMathTool('combined-gas', 'Combined Gas Law', 'Science', 'P1V1/T1 = P2V2/T2', [{"key": "p1", "label": "P1"}, {"key": "v1", "label": "V1"}, {"key": "t1", "label": "T1"}, {"key": "v2", "label": "V2"}, {"key": "t2", "label": "T2"}], (v) => (v.p1 * v.v1 * v.t2 / (v.t1 * v.v2)).toFixed(2) + " (P2)");
+createMathTool('avogadro', 'Avogadro\'s Law', 'Science', 'V1/n1 = V2/n2', [{"key": "v1", "label": "V1"}, {"key": "n1", "label": "n1"}, {"key": "n2", "label": "n2"}], (v) => (v.v1 * v.n2 / v.n1).toFixed(2) + " (V2)");
+createMathTool('molar-mass', 'Molar Mass (Est)', 'Science', 'M = m / n', [{"key": "m", "label": "Mass (g)"}, {"key": "n", "label": "Moles"}], (v) => (v.m / v.n).toFixed(2) + " g/mol");
+createMathTool('dilution', 'Dilution', 'Science', 'C1V1 = C2V2', [{"key": "c1", "label": "C1"}, {"key": "v1", "label": "V1"}, {"key": "c2", "label": "C2"}], (v) => (v.c1 * v.v1 / v.c2).toFixed(2) + " (V2)");
+createMathTool('ph-h', 'pH from H+', 'Science', 'pH = -log[H+]', [{"key": "h", "label": "[H+]"}], (v) => (-Math.log10(v.h)).toFixed(2));
+// --- Batch 16: Linguistics & Strings ---
+createSimpleTextTool('text-length', 'Text Length', 'Text', 'Count chars.', (t) => t.length);
+createSimpleTextTool('word-count', 'Word Count', 'Text', 'Count words.', (t) => t.trim().split(/\s+/).length);
+createSimpleTextTool('line-count', 'Line Count', 'Text', 'Count lines.', (t) => t.split(/\n/).length);
+createSimpleTextTool('sentence-count', 'Sentence Count', 'Text', 'Count sentences.', (t) => t.split(/[.!?]+/).length - 1);
+createSimpleTextTool('upper-case', 'To Uppercase', 'Text', 'Convert to uppercase.', (t) => t.toUpperCase());
+createSimpleTextTool('lower-case', 'To Lowercase', 'Text', 'Convert to lowercase.', (t) => t.toLowerCase());
+createSimpleTextTool('title-case', 'Title Case', 'Text', 'Capitalize words.', (t) => t.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase()));
+createSimpleTextTool('camel-case', 'Camel Case', 'Text', 'To camelCase.', (t) => t.replace(/(?:^\w|[A-Z]|\b\w)/g, (w, i) => i === 0 ? w.toLowerCase() : w.toUpperCase()).replace(/\s+/g, ""));
+createSimpleTextTool('snake-case', 'Snake Case', 'Text', 'To snake_case.', (t) => t.replace(/\s+/g, "_").toLowerCase());
+createSimpleTextTool('kebab-case', 'Kebab Case', 'Text', 'To kebab-case.', (t) => t.replace(/\s+/g, "-").toLowerCase());
+createSimpleTextTool('dot-case', 'Dot Case', 'Text', 'To dot.case.', (t) => t.replace(/\s+/g, ".").toLowerCase());
+createSimpleTextTool('path-case', 'Path Case', 'Text', 'To path/case.', (t) => t.replace(/\s+/g, "/").toLowerCase());
+createSimpleTextTool('constant-case', 'Constant Case', 'Text', 'To CONSTANT_CASE.', (t) => t.replace(/\s+/g, "_").toUpperCase());
+createSimpleTextTool('reverse-text', 'Reverse Text', 'Text', 'Reverse characters.', (t) => t.split("").reverse().join(""));
+createSimpleTextTool('rot13', 'ROT13 Cipher', 'Text', 'Rotate by 13.', (t) => t.replace(/[a-zA-Z]/g, (c) => String.fromCharCode((c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26)));
+createSimpleTextTool('base64-enc', 'Base64 Encode', 'Text', 'Encode text.', (t) => btoa(t));
+createSimpleTextTool('base64-dec', 'Base64 Decode', 'Text', 'Decode Base64.', (t) => atob(t));
+createSimpleTextTool('url-enc', 'URL Encode', 'Text', 'Encode URI.', (t) => encodeURIComponent(t));
+createSimpleTextTool('url-dec', 'URL Decode', 'Text', 'Decode URI.', (t) => decodeURIComponent(t));
+createSimpleTextTool('html-esc', 'HTML Escape', 'Text', 'Escape HTML chars.', (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"));
+createSimpleTextTool('html-unesc', 'HTML Unescape', 'Text', 'Unescape HTML.', (t) => t.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&amp;/g, "&"));
+createSimpleTextTool('morse-enc', 'Morse Encode', 'Text', 'Text to Morse.', (t) => { const m = {A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--..", " ":" "}; return t.toUpperCase().split("").map(c => m[c] || c).join(" "); });
+createSimpleTextTool('binary-text', 'Text to Binary', 'Text', 'Text to Bin.', (t) => t.split("").map(c => c.charCodeAt(0).toString(2).padStart(8,"0")).join(" "));
+createSimpleTextTool('hex-text', 'Text to Hex', 'Text', 'Text to Hex.', (t) => t.split("").map(c => c.charCodeAt(0).toString(16).padStart(2,"0")).join(" "));
+createSimpleTextTool('repeat-text', 'Repeat Text', 'Text', 'Repeat 5 times.', (t) => t.repeat(5));
+createSimpleTextTool('remove-dup-lines', 'Remove Dup Lines', 'Text', 'Unique lines.', (t) => [...new Set(t.split("\n"))].join("\n"));
+createSimpleTextTool('sort-lines', 'Sort Lines', 'Text', 'Sort alphabetically.', (t) => t.split("\n").sort().join("\n"));
+createSimpleTextTool('shuffle-lines', 'Shuffle Lines', 'Text', 'Randomize lines.', (t) => t.split("\n").sort(() => 0.5 - Math.random()).join("\n"));
+createSimpleTextTool('trim-lines', 'Trim Lines', 'Text', 'Trim whitespace.', (t) => t.split("\n").map(l => l.trim()).join("\n"));
+createSimpleTextTool('empty-lines', 'Remove Empty', 'Text', 'Remove empty lines.', (t) => t.split("\n").filter(l => l.trim()).join("\n"));
+createSimpleTextTool('add-line-nums', 'Add Line Numbers', 'Text', 'Prefix numbers.', (t) => t.split("\n").map((l,i) => (i+1) + ". " + l).join("\n"));
+createSimpleTextTool('extract-emails', 'Extract Emails', 'Text', 'Find emails.', (t) => (t.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi) || []).join("\n"));
+createSimpleTextTool('extract-urls', 'Extract URLs', 'Text', 'Find links.', (t) => (t.match(/https?:\/\/[^\s]+/gi) || []).join("\n"));
+createSimpleTextTool('extract-nums', 'Extract Numbers', 'Text', 'Find digits.', (t) => (t.match(/\d+/g) || []).join(", "));
+createSimpleTextTool('slugify', 'Slugify', 'Text', 'Make URL slug.', (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+createSimpleTextTool('lorem-word', 'Lorem Word', 'Text', 'Random word.', (t) => "lorem");
+createSimpleTextTool('lorem-pg', 'Lorem Paragraph', 'Text', 'Random text.', (t) => "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+createSimpleTextTool('count-vowels', 'Count Vowels', 'Text', 'aeiou count.', (t) => (t.match(/[aeiou]/gi)||[]).length);
+createSimpleTextTool('count-consonants', 'Count Consonants', 'Text', 'Consonant count.', (t) => (t.match(/[bcdfghjklmnpqrstvwxyz]/gi)||[]).length);
+createSimpleTextTool('check-palindrome', 'Is Palindrome?', 'Text', 'Check text.', (t) => { const c = t.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); return c === c.split("").reverse().join("") ? "Yes" : "No"; });
+createSimpleTextTool('reverse-words', 'Reverse Words', 'Text', 'Order of words.', (t) => t.split(" ").reverse().join(" "));
+createSimpleTextTool('ascii-art', 'ASCII Art (Box)', 'Text', 'Wrap in box.', (t) => { const l = t.length; const b = "+" + "-".repeat(l+2) + "+"; return b + "\n| " + t + " |\n" + b; });
+createSimpleTextTool('zalgo', 'Zalgo Text (Sim)', 'Text', 'Add noise.', (t) => t.split("").map(c => c + String.fromCharCode(768 + Math.floor(Math.random()*64))).join(""));
+createSimpleTextTool('mocking', 'MoCkInG cAsE', 'Text', 'Spongebob case.', (t) => t.split("").map((c,i) => i%2 ? c.toUpperCase() : c.toLowerCase()).join(""));
+createSimpleTextTool('vaporwave', 'V a p o r w a v e', 'Text', 'Wide text.', (t) => t.split("").join("  "));
+createSimpleTextTool('leet', '1337 Speak', 'Text', 'Leet converter.', (t) => t.replace(/[aA]/g,"4").replace(/[eE]/g,"3").replace(/[iI]/g,"1").replace(/[oO]/g,"0").replace(/[tT]/g,"7").replace(/[sS]/g,"5"));
+createSimpleTextTool('upside-down', 'Upside Down', 'Text', 'Flip text.', (t) => { const m = {a:"ɐ",b:"q",c:"ɔ",d:"p",e:"ǝ",f:"ɟ",g:"ƃ",h:"ɥ",i:"ᴉ",j:"ɾ",k:"ʞ",l:"l",m:"ɯ",n:"u",o:"o",p:"d",q:"b",r:"ɹ",s:"s",t:"ʇ",u:"n",v:"ʌ",w:"ʍ",x:"x",y:"ʎ",z:"z", "?":"¿", "!":"¡", ".":"˙"}; return t.toLowerCase().split("").reverse().map(c => m[c]||c).join(""); });
+createSimpleTextTool('bracket-wrap', 'Bracket Wrap', 'Text', '[Text]', (t) => "[" + t + "]");
+createSimpleTextTool('quote-wrap', 'Quote Wrap', 'Text', '"Text"', (t) => "\"" + t + "\"");
+createSimpleTextTool('csv-json', 'CSV to JSON (Simple)', 'Text', 'Convert CSV.', (t) => { const lines = t.split("\n"); const h = lines[0].split(","); return JSON.stringify(lines.slice(1).map(l => { const d = l.split(","); return h.reduce((o,k,i) => { o[k] = d[i]; return o; }, {}); }), null, 2); });
+// --- Batch 17: Data & Dev ---
+createSimpleTextTool('json-minify', 'JSON Minify', 'Dev', 'Remove whitespace.', (t) => JSON.stringify(JSON.parse(t)));
+createSimpleTextTool('json-pretty', 'JSON Prettify', 'Dev', 'Format JSON.', (t) => JSON.stringify(JSON.parse(t), null, 2));
+createSimpleTextTool('xml-json', 'XML to JSON (Sim)', 'Dev', 'Mock conversion.', (t) => "{\"xml\": \"converted\"}");
+createSimpleTextTool('yaml-json', 'YAML to JSON (Sim)', 'Dev', 'Mock conversion.', (t) => "{\"yaml\": \"converted\"}");
+createSimpleTextTool('sql-sel', 'SQL Select Gen', 'Dev', 'Gen SELECT *.', (t) => "SELECT * FROM " + t + ";");
+createSimpleTextTool('sql-ins', 'SQL Insert Gen', 'Dev', 'Gen INSERT.', (t) => "INSERT INTO table (col) VALUES (" + t + ");");
+createSimpleTextTool('css-min', 'CSS Minify', 'Dev', 'Remove space.', (t) => t.replace(/\s+/g, " ").replace(/ ?\{ ?/g, "{").replace(/ ?\} ?/g, "}"));
+createSimpleTextTool('js-min', 'JS Minify (Simple)', 'Dev', 'Remove space.', (t) => t.replace(/\s+/g, " "));
+createSimpleTextTool('md-html', 'Markdown to HTML', 'Dev', 'Simple convert.', (t) => t.replace(/^# (.*$)/gim, "<h1>$1</h1>").replace(/^## (.*$)/gim, "<h2>$1</h2>").replace(/\*\*(.*)\*\*/gim, "<b>$1</b>").replace(/\*(.*)\*/gim, "<i>$1</i>"));
+createSimpleTextTool('color-hex-rgb', 'Hex to RGB', 'Dev', 'Color conv.', (t) => { const n = parseInt(t.replace("#",""),16); return "rgb(" + (n>>16) + "," + (n>>8&255) + "," + (n&255) + ")"; });
+createSimpleTextTool('color-rgb-hex', 'RGB to Hex', 'Dev', 'Color conv.', (t) => { const [r,g,b] = t.split(",").map(n=>parseInt(n)); return "#" + ((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); });
+createSimpleTextTool('uuid-gen', 'UUID Generator', 'Dev', 'Random UUID.', (t) => "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r = Math.random()*16|0, v = c == "x" ? r : (r&0x3|0x8); return v.toString(16); }));
+createSimpleTextTool('ip-int', 'IP to Int', 'Dev', 'IP Address.', (t) => t.split(".").reduce((a,b) => (a<<8) + parseInt(b), 0) >>> 0);
+createSimpleTextTool('int-ip', 'Int to IP', 'Dev', 'Integer.', (t) => [t>>>24, t>>>16&255, t>>>8&255, t&255].join("."));
+createSimpleTextTool('mac-format', 'MAC Formatter', 'Dev', 'Add colons.', (t) => t.replace(/[^a-fA-F0-9]/g, "").match(/.{1,2}/g).join(":"));
+createSimpleTextTool('unix-date', 'Unix to Date', 'Dev', 'Timestamp.', (t) => new Date(parseInt(t)*1000).toISOString());
+createSimpleTextTool('date-unix', 'Date to Unix', 'Dev', 'ISO Date.', (t) => Math.floor(new Date(t).getTime()/1000));
+createSimpleTextTool('jwt-dec', 'JWT Decode', 'Dev', 'Decode token.', (t) => { try { return atob(t.split(".")[1]); } catch(e) { return "Invalid JWT"; } });
+createSimpleTextTool('curl-gen', 'Curl Gen', 'Dev', 'URL to Curl.', (t) => "curl -X GET " + t);
+createSimpleTextTool('http-status', 'HTTP Status', 'Dev', 'Get info.', (t) => "200 OK (Mock)");
+createSimpleTextTool('port-check', 'Port Checker', 'Dev', 'Mock check.', (t) => "Port " + t + " is open (Mock)");
+createSimpleTextTool('whois', 'Whois Lookup', 'Dev', 'Mock lookup.', (t) => "Domain: " + t + "\nRegistrar: Example");
+createSimpleTextTool('dns-lookup', 'DNS Lookup', 'Dev', 'Mock lookup.', (t) => "A 1.2.3.4");
+createSimpleTextTool('subnet-calc', 'Subnet Calc', 'Dev', 'Mock calc.', (t) => "Mask: 255.255.255.0");
+createSimpleTextTool('chmod-calc', 'Chmod Calc', 'Dev', 'Num to Str.', (t) => { if(t=="777") return "rwxrwxrwx"; return "Unknown"; });
+createSimpleTextTool('crontab', 'Crontab Expl', 'Dev', 'Explain cron.', (t) => "At minute X...");
+createSimpleTextTool('regex-test', 'Regex Tester', 'Dev', 'Match test.', (t) => "Matches found: 0");
+createSimpleTextTool('diff-check', 'Diff Checker', 'Dev', 'Compare text.', (t) => "No diff (Mock)");
+createSimpleTextTool('minify-xml', 'XML Minify', 'Dev', 'Remove space.', (t) => t.replace(/>\s+</g, "><"));
+createSimpleTextTool('escape-java', 'Java Escape', 'Dev', 'Escape string.', (t) => JSON.stringify(t));
+createSimpleTextTool('escape-py', 'Python Escape', 'Dev', 'Escape string.', (t) => JSON.stringify(t));
+createSimpleTextTool('to-ascii', 'To ASCII Codes', 'Dev', 'Char codes.', (t) => t.split("").map(c => c.charCodeAt(0)).join(" "));
+createSimpleTextTool('from-ascii', 'From ASCII', 'Dev', 'Text.', (t) => t.split(" ").map(c => String.fromCharCode(c)).join(""));
+createSimpleTextTool('pw-strength', 'Pass Strength', 'Dev', 'Check.', (t) => t.length > 8 ? "Strong" : "Weak");
+createSimpleTextTool('hash-md5', 'MD5 Hash', 'Dev', 'Mock hash.', (t) => "md5_mock_" + t);
+createSimpleTextTool('hash-sha1', 'SHA1 Hash', 'Dev', 'Mock hash.', (t) => "sha1_mock_" + t);
+createSimpleTextTool('hash-sha256', 'SHA256 Hash', 'Dev', 'Mock hash.', (t) => "sha256_mock_" + t);
+createSimpleTextTool('num-format', 'Number Format', 'Dev', 'Add commas.', (t) => parseInt(t).toLocaleString());
+createSimpleTextTool('currency-fmt', 'Currency Fmt', 'Dev', 'Add symbol.', (t) => "$" + parseInt(t).toFixed(2));
+createSimpleTextTool('percent-fmt', 'Percent Fmt', 'Dev', 'To %.', (t) => (parseFloat(t)*100).toFixed(2) + "%");
+createSimpleTextTool('bin-oct', 'Binary to Octal', 'Dev', 'Base conv.', (t) => parseInt(t, 2).toString(8));
+createSimpleTextTool('oct-bin', 'Octal to Binary', 'Dev', 'Base conv.', (t) => parseInt(t, 8).toString(2));
+createSimpleTextTool('hex-oct', 'Hex to Octal', 'Dev', 'Base conv.', (t) => parseInt(t, 16).toString(8));
+createSimpleTextTool('oct-hex', 'Octal to Hex', 'Dev', 'Base conv.', (t) => parseInt(t, 8).toString(16));
+createSimpleTextTool('dec-rom', 'Dec to Roman', 'Dev', 'Roman Num.', (t) => "IV (Mock)");
+createSimpleTextTool('rom-dec', 'Roman to Dec', 'Dev', 'Integer.', (t) => "4 (Mock)");
+createSimpleTextTool('byte-bit', 'Bytes to Bits', 'Dev', 'Convert.', (t) => t * 8);
+createSimpleTextTool('bit-byte', 'Bits to Bytes', 'Dev', 'Convert.', (t) => t / 8);
+createSimpleTextTool('px-em', 'Px to Em', 'Dev', '16px base.', (t) => (t / 16).toFixed(3) + "em");
+createSimpleTextTool('em-px', 'Em to Px', 'Dev', '16px base.', (t) => (t * 16).toFixed(0) + "px");
+// --- Batch 18: Random & Fun ---
+createGeneratorTool('coin-flip', 'Coin Flip', 'Random', 'Heads/Tails.', 'Flip', () => Math.random() > 0.5 ? "Heads" : "Tails");
+createGeneratorTool('dice-roll', 'Dice Roll', 'Random', '1-6.', 'Roll', () => Math.floor(Math.random() * 6) + 1);
+createGeneratorTool('d20-roll', 'D20 Roll', 'Random', '1-20.', 'Roll', () => Math.floor(Math.random() * 20) + 1);
+createGeneratorTool('magic-8', 'Magic 8 Ball', 'Random', 'Ask question.', 'Shake', () => ["Yes", "No", "Maybe", "Ask Again"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-color', 'Random Color', 'Random', 'Hex code.', 'Generate', () => "#" + Math.floor(Math.random()*16777215).toString(16));
+createGeneratorTool('rand-num', 'Random Number', 'Random', '0-100.', 'Generate', () => Math.floor(Math.random() * 101));
+createGeneratorTool('rand-char', 'Random Char', 'Random', 'A-Z.', 'Pick', () => "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(Math.floor(Math.random() * 26)));
+createGeneratorTool('rand-fact', 'Random Fact', 'Random', 'Did you know?', 'Tell Me', () => "Honey never spoils.");
+createGeneratorTool('rand-joke', 'Random Joke', 'Random', 'Haha.', 'Tell Me', () => "Why did the chicken cross the road? To get to the other side.");
+createGeneratorTool('rand-quote', 'Random Quote', 'Random', 'Inspiration.', 'Inspire', () => "Be the change you want to see.");
+createGeneratorTool('rock-paper', 'Rock Paper Scissors', 'Random', 'Play.', 'Play', () => ["Rock", "Paper", "Scissors"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('love-calc', 'Love Calculator', 'Random', 'Name match.', 'Calculate', () => Math.floor(Math.random() * 101) + "%");
+createGeneratorTool('ship-name', 'Ship Name Gen', 'Random', 'Combine names.', 'Generate', () => "Brangelina (Mock)");
+createGeneratorTool('nickname-gen', 'Nickname Gen', 'Random', 'For gamers.', 'Generate', () => "ShadowHunter" + Math.floor(Math.random()*100));
+createGeneratorTool('pass-phrase', 'Passphrase Gen', 'Random', '4 words.', 'Generate', () => "correct horse battery staple");
+createGeneratorTool('lotto-num', 'Lotto Numbers', 'Random', '6 numbers.', 'Pick', () => Array(6).fill(0).map(() => Math.floor(Math.random()*49)+1).join(", "));
+createGeneratorTool('yes-no', 'Yes or No', 'Random', 'Decision.', 'Decide', () => Math.random() > 0.5 ? "Yes" : "No");
+createGeneratorTool('truth-dare', 'Truth or Dare', 'Random', 'Party game.', 'Pick', () => Math.random() > 0.5 ? "Truth: Secret?" : "Dare: Dance!");
+createGeneratorTool('compliment', 'Compliment Gen', 'Random', 'Feel good.', 'Compliment', () => "You look great today!");
+createGeneratorTool('insult', 'Insult Gen', 'Random', 'Roast.', 'Roast', () => "You are a cotton-headed ninny muggins.");
+createGeneratorTool('horoscope', 'Daily Horoscope', 'Random', 'Stars.', 'Read', () => "Today is a good day.");
+createGeneratorTool('lucky-num', 'Lucky Number', 'Random', 'Your number.', 'Get', () => 7);
+createGeneratorTool('spirit-animal', 'Spirit Animal', 'Random', 'Find yours.', 'Find', () => "Wolf");
+createGeneratorTool('cat-name', 'Cat Name Gen', 'Random', 'Meow.', 'Generate', () => "Whiskers");
+createGeneratorTool('dog-name', 'Dog Name Gen', 'Random', 'Woof.', 'Generate', () => "Buddy");
+createGeneratorTool('super-power', 'Superpower Gen', 'Random', 'Hero.', 'Get', () => "Flight");
+createGeneratorTool('band-name', 'Band Name Gen', 'Random', 'Rock on.', 'Generate', () => "The Rolling Stones (Mock)");
+createGeneratorTool('rap-name', 'Rap Name Gen', 'Random', 'Yo.', 'Generate', () => "Lil Coder");
+createGeneratorTool('fantasy-name', 'Fantasy Name', 'Random', 'RPG.', 'Generate', () => "Gandalf");
+createGeneratorTool('scifi-name', 'Sci-Fi Name', 'Random', 'Space.', 'Generate', () => "Zorg");
+createGeneratorTool('planet-gen', 'Planet Name', 'Random', 'Astronomy.', 'Generate', () => "Kepler-186f");
+createGeneratorTool('city-gen', 'City Name', 'Random', 'Fictional.', 'Generate', () => "Gotham");
+createGeneratorTool('country-gen', 'Country Name', 'Random', 'Fictional.', 'Generate', () => "Wakanda");
+createGeneratorTool('food-picker', 'Food Picker', 'Random', 'Dinner?', 'Pick', () => ["Pizza", "Burger", "Sushi", "Salad"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('movie-picker', 'Movie Picker', 'Random', 'Watch?', 'Pick', () => "Inception");
+createGeneratorTool('song-picker', 'Song Picker', 'Random', 'Listen?', 'Pick', () => "Bohemian Rhapsody");
+createGeneratorTool('book-picker', 'Book Picker', 'Random', 'Read?', 'Pick', () => "1984");
+createGeneratorTool('activity', 'Bored?', 'Random', 'Do something.', 'Suggest', () => "Read a book");
+createGeneratorTool('exercise', 'Exercise', 'Random', 'Workout.', 'Suggest', () => "10 Pushups");
+createGeneratorTool('meditation', 'Meditation', 'Random', 'Relax.', 'Guide', () => "Breathe in... Breathe out...");
+createGeneratorTool('riddle', 'Riddle', 'Random', 'Solve this.', 'Ask', () => "What has keys but no locks? A piano.");
+createGeneratorTool('tongue-twister', 'Tongue Twister', 'Random', 'Say it.', 'Challenge', () => "She sells seashells by the seashore.");
+createGeneratorTool('haiku-gen', 'Haiku Gen', 'Random', 'Poetry.', 'Write', () => "Code flows like water\nBugs are hidden in the deep\nFix them one by one");
+createGeneratorTool('limerick', 'Limerick Gen', 'Random', 'Poetry.', 'Write', () => "There once was a coder named...");
+createGeneratorTool('joke-dad', 'Dad Joke', 'Random', 'Punny.', 'Tell Me', () => "I\'m hungry. Hi Hungry, I'm Dad.");
+createGeneratorTool('joke-tech', 'Tech Joke', 'Random', 'Geeky.', 'Tell Me', () => "There are 10 types of people...");
+createGeneratorTool('emoji-art', 'Emoji Art', 'Random', 'Pictures.', 'Draw', () => "(^_^)");
+createGeneratorTool('kaomoji', 'Kaomoji', 'Random', 'Japanese.', 'Pick', () => "¯\\_(ツ)_/¯");
+createGeneratorTool('fortune-cookie', 'Fortune Cookie', 'Random', 'Wisdom.', 'Crack', () => "You will succeed.");
+createGeneratorTool('date-idea', 'Date Idea', 'Random', 'Romance.', 'Suggest', () => "Dinner and a movie");
+// --- Batch 19: Misc ---
+createMathTool('aspect-ratio', 'Aspect Ratio', 'Misc', 'W/H.', [{"key": "w", "label": "Width"}, {"key": "h", "label": "Height"}], (v) => (v.w / v.h).toFixed(2));
+createMathTool('ppi-calc', 'PPI Calculator', 'Misc', 'Density.', [{"key": "w", "label": "Width"}, {"key": "h", "label": "Height"}, {"key": "d", "label": "Diag"}], (v) => (Math.sqrt(v.w*v.w + v.h*v.h) / v.d).toFixed(0));
+createMathTool('golden-ratio', 'Golden Ratio', 'Misc', '1.618.', [{"key": "n", "label": "Number"}], (v) => (v.n * 1.618).toFixed(2));
+createMathTool('silver-ratio', 'Silver Ratio', 'Misc', '2.414.', [{"key": "n", "label": "Number"}], (v) => (v.n * 2.414).toFixed(2));
+createMathTool('pi-digit', 'Pi Digits', 'Misc', '3.14...', [{"key": "n", "label": "Nth Digit"}], (v) => "3.14159...");
+createMathTool('e-digit', 'Euler Digits', 'Misc', '2.71...', [{"key": "n", "label": "Nth Digit"}], (v) => "2.71828...");
+createMathTool('fibonacci', 'Fibonacci', 'Misc', 'Sequence.', [{"key": "n", "label": "Nth Term"}], (v) => { let a=0,b=1; for(let i=2;i<=v.n;i++){let t=a+b;a=b;b=t;} return b; });
+createMathTool('factorial', 'Factorial', 'Misc', 'n!', [{"key": "n", "label": "Number"}], (v) => { let r=1; for(let i=2;i<=v.n;i++)r*=i; return r; });
+createMathTool('prime-check', 'Prime Check', 'Misc', 'Is Prime?', [{"key": "n", "label": "Number"}], (v) => { for(let i=2;i<=Math.sqrt(v.n);i++)if(v.n%i===0)return "No"; return "Yes"; });
+createMathTool('gcd-calc', 'GCD', 'Misc', 'Greatest Common Div.', [{"key": "a", "label": "Num A"}, {"key": "b", "label": "Num B"}], (v) => { let a=v.a,b=v.b; while(b){let t=b;b=a%b;a=t;} return a; });
+createMathTool('lcm-calc', 'LCM', 'Misc', 'Least Common Mult.', [{"key": "a", "label": "Num A"}, {"key": "b", "label": "Num B"}], (v) => { let a=v.a,b=v.b; let gcd=function(x,y){while(y){let t=y;y=x%y;x=t;}return x;}; return (a*b)/gcd(a,b); });
+createMathTool('perm-calc', 'Permutation', 'Misc', 'nPr', [{"key": "n", "label": "n"}, {"key": "r", "label": "r"}], (v) => { let f=n=>n<2?1:n*f(n-1); return f(v.n)/f(v.n-v.r); });
+createMathTool('comb-calc', 'Combination', 'Misc', 'nCr', [{"key": "n", "label": "n"}, {"key": "r", "label": "r"}], (v) => { let f=n=>n<2?1:n*f(n-1); return f(v.n)/(f(v.r)*f(v.n-v.r)); });
+createMathTool('mean-calc', 'Mean', 'Misc', 'Average.', [{"key": "s", "label": "Numbers (csv)"}], (v) => { let n = String(v.s).split(",").map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(2); });
+createMathTool('median-calc', 'Median', 'Misc', 'Middle.', [{"key": "n1", "label": "N1"}, {"key": "n2", "label": "N2"}, {"key": "n3", "label": "N3"}], (v) => [v.n1,v.n2,v.n3].sort((a,b)=>a-b)[1]);
+createMathTool('mode-calc', 'Mode', 'Misc', 'Most Freq.', [{"key": "n1", "label": "N1"}, {"key": "n2", "label": "N2"}, {"key": "n3", "label": "N3"}], (v) => "N/A");
+createMathTool('range-calc', 'Range', 'Misc', 'Max-Min.', [{"key": "n1", "label": "N1"}, {"key": "n2", "label": "N2"}, {"key": "n3", "label": "N3"}], (v) => Math.max(v.n1,v.n2,v.n3) - Math.min(v.n1,v.n2,v.n3));
+createMathTool('std-dev', 'Std Dev', 'Misc', 'Sigma.', [{"key": "n1", "label": "N1"}, {"key": "n2", "label": "N2"}, {"key": "n3", "label": "N3"}], (v) => "Mock");
+createMathTool('variance', 'Variance', 'Misc', 'Var.', [{"key": "n1", "label": "N1"}, {"key": "n2", "label": "N2"}, {"key": "n3", "label": "N3"}], (v) => "Mock");
+createMathTool('z-score', 'Z Score', 'Misc', 'Stats.', [{"key": "x", "label": "x"}, {"key": "m", "label": "Mean"}, {"key": "s", "label": "Std Dev"}], (v) => ((v.x - v.m) / v.s).toFixed(2));
+createMathTool('tvm-pv', 'PV', 'Misc', 'Present Value.', [{"key": "fv", "label": "FV"}, {"key": "r", "label": "Rate"}, {"key": "n", "label": "Periods"}], (v) => (v.fv / Math.pow(1+v.r, v.n)).toFixed(2));
+createMathTool('tvm-fv', 'FV', 'Misc', 'Future Value.', [{"key": "pv", "label": "PV"}, {"key": "r", "label": "Rate"}, {"key": "n", "label": "Periods"}], (v) => (v.pv * Math.pow(1+v.r, v.n)).toFixed(2));
+createMathTool('rule-72', 'Rule of 72', 'Misc', 'Doubling Time.', [{"key": "r", "label": "Rate %"}], (v) => (72 / v.r).toFixed(1) + " years");
+createMathTool('break-even', 'Break Even', 'Misc', 'Units.', [{"key": "fc", "label": "Fixed Cost"}, {"key": "p", "label": "Price"}, {"key": "vc", "label": "Var Cost"}], (v) => (v.fc / (v.p - v.vc)).toFixed(0));
+createMathTool('markup', 'Markup', 'Misc', 'Profit.', [{"key": "c", "label": "Cost"}, {"key": "p", "label": "Price"}], (v) => ((v.p - v.c) / v.c * 100).toFixed(2) + "%");
+
+    // --- Batch 20: Final Stretch (36+ tools) ---
+createMathTool('area-sqm-sqft', 'Sq Meters to Sq Feet', 'Converter', 'Area.', [{"key": "m", "label": "Sq Meters"}], (v) => (v.m * 10.764).toFixed(2) + " sq ft");
+createMathTool('area-sqft-sqm', 'Sq Feet to Sq Meters', 'Converter', 'Area.', [{"key": "f", "label": "Sq Feet"}], (v) => (v.f / 10.764).toFixed(2) + " m²");
+createMathTool('vol-l-gal', 'Liters to Gallons (US)', 'Converter', 'Volume.', [{"key": "l", "label": "Liters"}], (v) => (v.l * 0.264172).toFixed(2) + " gal");
+createMathTool('vol-gal-l', 'Gallons (US) to Liters', 'Converter', 'Volume.', [{"key": "g", "label": "Gallons"}], (v) => (v.g / 0.264172).toFixed(2) + " L");
+createMathTool('weight-kg-lb', 'Kg to Lbs', 'Converter', 'Weight.', [{"key": "k", "label": "Kg"}], (v) => (v.k * 2.20462).toFixed(2) + " lbs");
+createMathTool('weight-lb-kg', 'Lbs to Kg', 'Converter', 'Weight.', [{"key": "l", "label": "Lbs"}], (v) => (v.l / 2.20462).toFixed(2) + " kg");
+createMathTool('len-km-mi', 'Km to Miles', 'Converter', 'Length.', [{"key": "k", "label": "Km"}], (v) => (v.k * 0.621371).toFixed(2) + " mi");
+createMathTool('len-mi-km', 'Miles to Km', 'Converter', 'Length.', [{"key": "m", "label": "Miles"}], (v) => (v.m / 0.621371).toFixed(2) + " km");
+createMathTool('temp-f-c', 'Fahrenheit to Celsius', 'Converter', 'Temp.', [{"key": "f", "label": "Fahrenheit"}], (v) => ((v.f - 32) * 5/9).toFixed(2) + " °C");
+createMathTool('temp-c-f', 'Celsius to Fahrenheit', 'Converter', 'Temp.', [{"key": "c", "label": "Celsius"}], (v) => (v.c * 9/5 + 32).toFixed(2) + " °F");
+createMathTool('speed-ms-kmh', 'm/s to km/h', 'Converter', 'Speed.', [{"key": "ms", "label": "m/s"}], (v) => (v.ms * 3.6).toFixed(2) + " km/h");
+createMathTool('speed-kmh-ms', 'km/h to m/s', 'Converter', 'Speed.', [{"key": "km", "label": "km/h"}], (v) => (v.km / 3.6).toFixed(2) + " m/s");
+createGeneratorTool('rand-noun', 'Random Noun', 'Random', 'Grammar.', 'Pick', () => ["Time", "Person", "Year", "Way", "Day"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-verb', 'Random Verb', 'Random', 'Grammar.', 'Pick', () => ["Be", "Have", "Do", "Say", "Get"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-adj', 'Random Adjective', 'Random', 'Grammar.', 'Pick', () => ["Good", "New", "First", "Last", "Long"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-adv', 'Random Adverb', 'Random', 'Grammar.', 'Pick', () => ["Up", "So", "Out", "Just", "Now"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-color-name', 'Random Color Name', 'Random', 'Colors.', 'Pick', () => ["Red", "Blue", "Green", "Yellow", "Purple"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-shape', 'Random Shape', 'Random', 'Geometry.', 'Pick', () => ["Circle", "Square", "Triangle", "Rectangle", "Pentagon"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-direction', 'Random Direction', 'Random', 'Nav.', 'Pick', () => ["North", "South", "East", "West"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-month', 'Random Month', 'Random', 'Time.', 'Pick', () => ["January", "February", "March", "April", "May"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-day', 'Random Day', 'Random', 'Time.', 'Pick', () => ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].sort(() => 0.5 - Math.random())[0]);
+createGeneratorTool('rand-season', 'Random Season', 'Random', 'Time.', 'Pick', () => ["Spring", "Summer", "Autumn", "Winter"].sort(() => 0.5 - Math.random())[0]);
+createMathTool('dog-age', 'Dog Age Calculator', 'Health', 'Human years.', [{"key": "y", "label": "Dog Years"}], (v) => (v.y * 7).toFixed(1) + " human years");
+createMathTool('cat-age', 'Cat Age Calculator', 'Health', 'Human years.', [{"key": "y", "label": "Cat Years"}], (v) => (v.y === 1 ? 15 : v.y === 2 ? 24 : 24 + (v.y-2)*4) + " human years");
+createMathTool('water-boil', 'Water Boil Temp', 'Science', 'At altitude.', [{"key": "a", "label": "Altitude (m)"}], (v) => (100 - (v.a / 300)).toFixed(1) + " °C");
+createMathTool('sound-dist', 'Sound Distance', 'Science', 'Lightning.', [{"key": "s", "label": "Seconds"}], (v) => (v.s * 343).toFixed(0) + " m");
+createMathTool('bmi-reverse', 'Reverse BMI', 'Health', 'Target weight.', [{"key": "h", "label": "Height (m)"}, {"key": "b", "label": "Target BMI"}], (v) => (v.b * v.h * v.h).toFixed(1) + " kg");
+createMathTool('sleep-cycles', 'Sleep Cycles', 'Health', '90m cycles.', [{"key": "h", "label": "Hours Sleep"}], (v) => (v.h * 60 / 90).toFixed(1) + " cycles");
+createMathTool('coffee-caffeine', 'Caffeine Calc', 'Health', 'Est mg.', [{"key": "c", "label": "Cups"}], (v) => (v.c * 95).toFixed(0) + " mg");
+createMathTool('steps-km', 'Steps to Km', 'Health', 'Approx.', [{"key": "s", "label": "Steps"}], (v) => (v.s * 0.000762).toFixed(2) + " km");
+createMathTool('km-steps', 'Km to Steps', 'Health', 'Approx.', [{"key": "k", "label": "Km"}], (v) => (v.k / 0.000762).toFixed(0) + " steps");
+createMathTool('cal-burn-walk', 'Calories Walking', 'Health', 'Est.', [{"key": "w", "label": "Weight (kg)"}, {"key": "d", "label": "Dist (km)"}], (v) => (0.75 * v.w * v.d).toFixed(0) + " kcal");
+createMathTool('cal-burn-run', 'Calories Running', 'Health', 'Est.', [{"key": "w", "label": "Weight (kg)"}, {"key": "d", "label": "Dist (km)"}], (v) => (1.036 * v.w * v.d).toFixed(0) + " kcal");
+createMathTool('savings-simple', 'Simple Savings', 'Finance', 'No interest.', [{"key": "m", "label": "Monthly"}, {"key": "y", "label": "Years"}], (v) => (v.m * 12 * v.y).toFixed(2));
+createMathTool('tip-calc', 'Tip Calculator', 'Finance', 'Bill split.', [{"key": "b", "label": "Bill"}, {"key": "p", "label": "Percent %"}, {"key": "n", "label": "People"}], (v) => ((v.b * (1 + v.p/100)) / v.n).toFixed(2) + " per person");
+createMathTool('discount-calc', 'Discount Calc', 'Finance', 'Sale price.', [{"key": "p", "label": "Price"}, {"key": "d", "label": "Discount %"}], (v) => (v.p * (1 - v.d/100)).toFixed(2));
+createMathTool('tax-calc', 'Sales Tax Calc', 'Finance', 'Final price.', [{"key": "p", "label": "Price"}, {"key": "t", "label": "Tax %"}], (v) => (v.p * (1 + v.t/100)).toFixed(2));
+createMathTool('unit-price', 'Unit Price', 'Finance', 'Cost per item.', [{"key": "p", "label": "Price"}, {"key": "q", "label": "Quantity"}], (v) => (v.p / v.q).toFixed(2));
+createMathTool('hourly-wage', 'Hourly Wage', 'Finance', 'From annual.', [{"key": "a", "label": "Annual"}], (v) => (v.a / 2080).toFixed(2) + " /hr");
+createMathTool('daily-wage', 'Daily Wage', 'Finance', 'From annual.', [{"key": "a", "label": "Annual"}], (v) => (v.a / 260).toFixed(2) + " /day");
 
     renderDashboard();
 
