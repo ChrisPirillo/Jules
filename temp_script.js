@@ -9,31 +9,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryTabs = document.getElementById('category-tabs');
 
     // --- Random Theming ---
-        function setRandomTheme() {
+                function setRandomTheme() {
         const hue = Math.floor(Math.random() * 360);
-        // Darker Theme: Saturation 60-80%, Lightness 10-30%
         const sat = Math.floor(Math.random() * 20) + 60;
         const light = Math.floor(Math.random() * 20) + 10;
 
-        const primaryColor = ;
-        const accentColor = ; // Brighter accent
-        const bgInput = ;
-        const border = ;
+        const primaryColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        const accentColor = `hsl(${hue}, ${sat}%, ${light + 40}%)`;
+        const bgInput = `hsla(${hue}, 30%, 10%, 0.6)`;
+        const border = `hsla(${hue}, 50%, 50%, 0.3)`;
+        const shadow = `hsla(${hue}, ${sat}%, ${light + 10}%, 0.3)`;
+
+        const root = document.documentElement;
+        root.style.setProperty('--primary-color', primaryColor);
+
+        const hue2 = (hue + 40) % 360;
+        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 60%, 20%) 0%, hsl(${hue2}, 60%, 10%) 100%)`;
+        root.style.setProperty('--bg-gradient', bgGradient);
+
+        root.style.setProperty('--theme-accent', accentColor);
+        root.style.setProperty('--theme-accent-hover', `hsl(${hue}, ${sat}%, ${light + 50}%)`);
+        root.style.setProperty('--theme-bg-input', bgInput);
+        root.style.setProperty('--theme-border', border);
+        root.style.setProperty('--theme-shadow', shadow);
+        root.style.setProperty('--theme-bg-hover', `hsla(${hue}, ${sat}%, 25%, 0.4)`);
+    }, ${sat}%, ${light}%)`;
+        const accentColor = `hsl(${hue}, ${sat}%, ${light + 40}%)`; // Brighter accent
+        const bgInput = `hsla(${hue}, 30%, 10%, 0.6)`;
+        const border = `hsla(${hue}, 50%, 50%, 0.3)`;
 
         const root = document.documentElement;
         root.style.setProperty('--primary-color', primaryColor);
 
         // Gradient: Dark to slightly lighter dark
         const hue2 = (hue + 40) % 360;
-        const bgGradient = ;
+        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 60%, 20%) 0%, hsl(${hue2}, 60%, 10%) 100%)`;
         root.style.setProperty('--bg-gradient', bgGradient);
 
         // Component Vars
         root.style.setProperty('--theme-accent', accentColor);
-        root.style.setProperty('--theme-accent-hover', );
+        root.style.setProperty('--theme-accent-hover', `hsl(${hue}, ${sat}%, ${light + 50}%)`);
         root.style.setProperty('--theme-bg-input', bgInput);
         root.style.setProperty('--theme-border', border);
-        root.style.setProperty('--theme-bg-hover', );
+        root.style.setProperty('--theme-bg-hover', `hsla(${hue}, ${sat}%, 25%, 0.4)`);
 
         // Force redraw/recalc if needed (usually auto)
     }
@@ -428,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toolContent.innerHTML = '';
         searchInput.value = '';
         setRandomTheme();
-        document.title = 'Crystal Tools - The Glassomorphic Web Utility Hub';
+        document.title = 'Tooltimate - The Glassomorphic Web Utility Hub';
         history.pushState(null, null, ' ');
     }
 
@@ -438,10 +456,20 @@ document.addEventListener('DOMContentLoaded', () => {
             dashboard.style.display = 'none';
             toolView.style.display = 'flex';
             if(categoryTabs) categoryTabs.style.display = 'none';
+
+
             toolTitle.textContent = tool.name;
+            const catBadge = document.getElementById('tool-category-badge');
+            if(catBadge) catBadge.textContent = tool.category || 'Tool';
+            toolContent.innerHTML = '';
+
+            const catBadge = document.getElementById('tool-category-badge');
+            if(catBadge) catBadge.textContent = tool.category || 'Tool';
+            toolContent.innerHTML = '';
+
             toolContent.innerHTML = '';
             tool.render(toolContent);
-            document.title = tool.name + ' - Crystal Tools';
+            document.title = tool.name + ' - Tooltimate';
             if (window.location.hash !== '#' + toolId) {
                 history.pushState(null, null, '#' + toolId);
             }
@@ -507,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <label>Background (Hex)</label>
                         <input type="color" id="cc-bg" class="glass-input" value="#000000" style="height:50px;">
                     </div>
-                    <div id="cc-preview" style="padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
+                    <div id="cc-preview" style="padding: 30px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
                         Preview Text
                     </div>
                     <div id="cc-result" style="text-align: center; font-weight: bold; font-size: 1.2rem;">Ratio: 21.00 (AAA)</div>
@@ -545,6 +573,159 @@ document.addEventListener('DOMContentLoaded', () => {
             check();
         }
     );
+
+
+    // --- Batch 7: High Volume Tools (Re-added) ---
+    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment.', [{key:'p', label:'Loan'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => { const r = v.r/1200; const n = v.y*12; return (v.p * r * Math.pow(1+r,n)/(Math.pow(1+r,n)-1)).toFixed(2); });
+    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return'}], (v) => (((v.ret-v.inv)/v.inv)*100).toFixed(2)+'%');
+    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Indent XML.', (text) => text.replace(/>\s*</g, '>\n<'));
+
+    // Image Tools (Canvas)
+    function registerImageTool(id, name, desc, actionName, processFn) {
+        registerTool(id, name, 'Image', desc,
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+            (container) => {
+                container.innerHTML = `
+                    <div class="glass-panel" style="text-align: center;">
+                        <input type="file" id="${id}-file" accept="image/*" style="display: none;">
+                        <button id="${id}-upload" class="glass-btn" style="width: 100%; margin-bottom: 10px;">Upload Image</button>
+                        <canvas id="${id}-canvas" style="max-width: 100%; max-height: 300px; display: none; border: 1px solid rgba(255,255,255,0.2);"></canvas>
+                        <div id="${id}-controls" style="margin-top: 10px; display: none;">
+                            <button id="${id}-process" class="glass-btn-primary">${actionName}</button>
+                            <a id="${id}-download" class="glass-btn" style="margin-top: 5px; display: inline-flex; justify-content: center; text-decoration: none;">Download</a>
+                        </div>
+                    </div>
+                `;
+                const fileInput = document.getElementById(`${id}-file`);
+                const uploadBtn = document.getElementById(`${id}-upload`);
+                const canvas = document.getElementById(`${id}-canvas`);
+                const ctx = canvas.getContext('2d');
+                const controls = document.getElementById(`${id}-controls`);
+                const processBtn = document.getElementById(`${id}-process`);
+                const downloadLink = document.getElementById(`${id}-download`);
+                let img = new Image();
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            img.onload = () => {
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                ctx.drawImage(img, 0, 0);
+                                canvas.style.display = 'block';
+                                controls.style.display = 'block';
+                            }
+                            img.src = event.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+                processBtn.addEventListener('click', () => {
+                    processFn(ctx, canvas.width, canvas.height);
+                    downloadLink.href = canvas.toDataURL();
+                    downloadLink.download = `${id}-result.png`;
+                });
+            }
+        );
+    }
+
+    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert to B&W.', 'Apply Grayscale', (ctx, w, h) => {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
+        }
+        ctx.putImageData(imgData, 0, 0);
+    });
+
+    registerTool('qr-gen', 'QR Code Generator', 'Misc', 'Generate QR Code.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="text-align: center;">
+                    <input type="text" id="qr-input" class="glass-input" placeholder="Enter URL or Text">
+                    <button id="qr-btn" class="glass-btn-primary" style="margin: 10px 0;">Generate QR</button>
+                    <div id="qr-result" style="margin-top: 20px;"></div>
+                </div>
+            `;
+            document.getElementById('qr-btn').addEventListener('click', () => {
+                const text = document.getElementById('qr-input').value;
+                if(text) {
+                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+                    document.getElementById('qr-result').innerHTML = `<img src="${url}" alt="QR Code" style="border-radius: 8px;">`;
+                }
+            });
+        }
+    );
+
+
+    // --- Batch 10: The Road to 200 ---
+    // Math
+    createMathTool('factorial', 'Factorial', 'Math', 'N!', [{key:'n', label:'N'}], (v) => { let r=1; for(let i=2; i<=v.n; i++) r*=i; return r; });
+    createMathTool('fibonacci', 'Fibonacci', 'Math', 'Nth number.', [{key:'n', label:'N'}], (v) => { let a=0, b=1, t; for(let i=2; i<=v.n; i++){t=a+b; a=b; b=t;} return v.n<1?0:b; });
+    createMathTool('sqrt', 'Square Root', 'Math', 'Sqrt(x)', [{key:'x', label:'X'}], (v) => Math.sqrt(v.x).toFixed(4));
+    createMathTool('cbrt', 'Cube Root', 'Math', 'Cbrt(x)', [{key:'x', label:'X'}], (v) => Math.cbrt(v.x).toFixed(4));
+    createMathTool('log10', 'Log Base 10', 'Math', 'Log10(x)', [{key:'x', label:'X'}], (v) => Math.log10(v.x).toFixed(4));
+    createMathTool('ln', 'Natural Log', 'Math', 'Ln(x)', [{key:'x', label:'X'}], (v) => Math.log(v.x).toFixed(4));
+    createMathTool('sin', 'Sine', 'Math', 'Sin(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.sin(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('cos', 'Cosine', 'Math', 'Cos(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.cos(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('tan', 'Tangent', 'Math', 'Tan(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.tan(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('deg-rad', 'Deg to Rad', 'Math', 'Degrees to Radians.', [{key:'d', label:'Degrees'}], (v) => (v.d * Math.PI / 180).toFixed(4));
+    createMathTool('rad-deg', 'Rad to Deg', 'Math', 'Radians to Degrees.', [{key:'r', label:'Radians'}], (v) => (v.r * 180 / Math.PI).toFixed(4));
+
+    // Statistics
+    createSimpleTextTool('stats-mean', 'Mean Calculator', 'Math', 'Average of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(4); });
+    createSimpleTextTool('stats-median', 'Median Calculator', 'Math', 'Median of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number).sort((a,b)=>a-b); const m = Math.floor(n.length/2); return (n.length%2!==0 ? n[m] : (n[m-1]+n[m])/2).toFixed(4); });
+    createSimpleTextTool('stats-range', 'Range Calculator', 'Math', 'Range (Max-Min).', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (Math.max(...n) - Math.min(...n)).toFixed(4); });
+
+    // Text
+    createSimpleTextTool('repeat-string', 'Repeat String', 'Text', 'Repeat text N times (use line1 for N).', (text) => { const lines = text.split('\n'); const n = parseInt(lines[0]) || 1; return lines.slice(1).join('\n').repeat(n); });
+    createSimpleTextTool('pad-start', 'Pad Start', 'Text', 'Pad text start.', (text) => text.split('\n').map(l => l.padStart(20, ' ')).join('\n'));
+    createSimpleTextTool('pad-end', 'Pad End', 'Text', 'Pad text end.', (text) => text.split('\n').map(l => l.padEnd(20, ' ')).join('\n'));
+    createSimpleTextTool('center-text', 'Center Text', 'Text', 'Center align text (mock).', (text) => text.split('\n').map(l => l.padStart((40 + l.length)/2).padEnd(40)).join('\n'));
+    createSimpleTextTool('leet-speak', 'Leet Speak', 'Text', '1337 5p34k.', (text) => text.replace(/[aA]/g,'4').replace(/[eE]/g,'3').replace(/[iI]/g,'1').replace(/[oO]/g,'0').replace(/[sS]/g,'5').replace(/[tT]/g,'7'));
+    createSimpleTextTool('obfuscate', 'Obfuscate Text', 'Text', 'Base64 + Reverse.', (text) => btoa(text).split('').reverse().join(''));
+
+    // Dev
+    createSimpleTextTool('chmod-calc', 'Chmod Calculator', 'Dev', 'Octal to Symbol (e.g. 755).', (text) => {
+        const p = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx'];
+        return text.split('').map(c => p[parseInt(c)] || '').join('');
+    });
+    createSimpleTextTool('http-status', 'HTTP Status', 'Dev', 'Lookup Code.', (text) => {
+        const codes = {200:'OK', 201:'Created', 400:'Bad Request', 401:'Unauthorized', 403:'Forbidden', 404:'Not Found', 500:'Server Error', 502:'Bad Gateway'};
+        return codes[text] || 'Unknown';
+    });
+
+    // Health
+    createMathTool('body-fat', 'Body Fat (Navy)', 'Health', 'Est. Body Fat %.', [{key:'w', label:'Waist (cm)'}, {key:'n', label:'Neck (cm)'}, {key:'h', label:'Height (cm)'}], (v) => (495 / (1.0324 - 0.19077 * Math.log10(v.w - v.n) + 0.15456 * Math.log10(v.h)) - 450).toFixed(2) + '%');
+    createMathTool('ideal-weight', 'Ideal Weight (Devine)', 'Health', 'Ideal Weight (kg).', [{key:'h', label:'Height (in)'}], (v) => (50 + 2.3 * (v.h - 60)).toFixed(2) + ' kg');
+
+    // Finance
+    createMathTool('rule-72', 'Rule of 72', 'Finance', 'Years to double inv.', [{key:'r', label:'Rate %'}], (v) => (72 / v.r).toFixed(2) + ' Years');
+    createMathTool('vat-calc', 'VAT Calculator', 'Finance', 'Add VAT.', [{key:'p', label:'Price'}, {key:'v', label:'VAT %'}], (v) => (v.p * (1 + v.v/100)).toFixed(2));
+    createMathTool('markup-calc', 'Markup Calculator', 'Finance', 'Price + Markup.', [{key:'c', label:'Cost'}, {key:'m', label:'Markup %'}], (v) => (v.c * (1 + v.m/100)).toFixed(2));
+    createMathTool('margin-calc', 'Margin Calculator', 'Finance', 'Find Margin.', [{key:'c', label:'Cost'}, {key:'p', label:'Price'}], (v) => ((v.p - v.c) / v.p * 100).toFixed(2) + '%');
+
+    // Science / Units (Simple Converters via Factory)
+    function createConverter(id, name, cat, desc, unit1, unit2, factor) {
+        createMathTool(id, name, cat, desc, [{key:'v', label:unit1}], (v) => (v.v * factor).toFixed(4) + ' ' + unit2);
+        createMathTool(id + '-rev', name + ' (Rev)', cat, desc, [{key:'v', label:unit2}], (v) => (v.v / factor).toFixed(4) + ' ' + unit1);
+    }
+
+    createConverter('pres-bar-psi', 'Bar to PSI', 'Science', 'Pressure.', 'Bar', 'PSI', 14.5038);
+    createConverter('ener-j-wh', 'Joules to Wh', 'Science', 'Energy.', 'Joules', 'Wh', 0.000277778);
+    createConverter('force-n-lbf', 'Newton to lbf', 'Science', 'Force.', 'Newton', 'lbf', 0.224809);
+    createConverter('angle-deg-grad', 'Deg to Grad', 'Science', 'Angle.', 'Deg', 'Grad', 1.11111);
+    createConverter('data-tb-gb', 'TB to GB', 'Science', 'Data.', 'TB', 'GB', 1024);
+
+    // Random
+    createGeneratorTool('random-bool', 'True/False', 'Random', 'Random boolean.', 'Flip', () => Math.random() < 0.5 ? 'True' : 'False');
+    createGeneratorTool('random-date', 'Random Date', 'Random', 'Past 50 years.', 'Generate', () => new Date(Date.now() - Math.random() * 1000000000000).toLocaleDateString());
+    createGeneratorTool('random-time', 'Random Time', 'Random', '24h format.', 'Generate', () => Math.floor(Math.random()*24).toString().padStart(2,'0') + ':' + Math.floor(Math.random()*60).toString().padStart(2,'0'));
+
 
     renderDashboard();
 

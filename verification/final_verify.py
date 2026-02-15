@@ -7,22 +7,26 @@ def run():
         page.goto("http://localhost:8080/quicktools/index.html")
         page.wait_for_selector(".tool-card")
 
-        # 1. Screenshot Dashboard with Dark Theme & One-line Categories
-        page.screenshot(path="verification/dashboard_dark_final.png")
+        # 1. Screenshot Dashboard with 200+ Badge
+        page.screenshot(path="verification/dashboard_200.png")
         print("Dashboard screenshot saved.")
 
-        # 2. Check Scroll Diffusion (visual check, element should exist)
-        # We check computed style of #content-area
-        mask = page.evaluate("getComputedStyle(document.getElementById('content-area')).maskImage")
-        print(f"Mask Image: {mask}")
+        # 2. Check Title
+        title = page.title()
+        if "Tooltimate" in title:
+            print("PASS: Title updated.")
+        else:
+            print(f"FAIL: Title mismatch ({title}).")
 
-        # 3. Check Themed Components
+        # 3. Check Category Badge in Tool
         page.click(".tool-card[data-tool='mortgage-calc']")
-        page.wait_for_selector("#mortgage-calc-calc")
+        page.wait_for_selector("#tool-category-badge")
+        cat = page.locator("#tool-category-badge").text_content()
+        print(f"Category Badge: {cat}")
+        if cat == "Finance":
+            print("PASS: Category Badge correct.")
 
-        page.screenshot(path="verification/tool_theme_final.png")
-        print("Tool theme screenshot saved.")
-
+        page.screenshot(path="verification/tool_badge.png")
         browser.close()
 
 run()
