@@ -816,6 +816,12 @@ body {
             <button class="category-tab" data-cat="Misc">Misc</button>
         </nav>
 
+        <div class="tool-header" id="tool-nav" style="display: none; padding: 0 10px 10px 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                        <button id="back-btn" class="glass-btn" aria-label="Back to Dashboard">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Back
+                        </button>
+                        <h2 id="tool-title">Tool Name</h2> <span id="tool-category-badge" style="margin-left: auto; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">Category</span></div>
         <div class="main-container">
             <main id="content-area">
                 <section id="dashboard" class="dashboard-grid">
@@ -823,12 +829,7 @@ body {
                 </section>
 
                 <section id="tool-view" style="display: none;">
-                    <div class="tool-header">
-                        <button id="back-btn" class="glass-btn" aria-label="Back to Dashboard">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                            Back
-                        </button>
-                        <h2 id="tool-title">Tool Name</h2> <span id="tool-category-badge" style="margin-left: auto; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">Category</span></div>
+
                     <div id="tool-content">
                         <!-- Tool content injected here -->
                     </div>
@@ -1116,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createGeneratorTool('dice-roller', 'Dice Roller', 'Game', 'Roll a 6-sided die.', 'Roll D6', () => Math.floor(Math.random() * 6) + 1);
     createGeneratorTool('coin-flipper', 'Coin Flipper', 'Game', 'Flip a coin.', 'Flip Coin', () => Math.random() < 0.5 ? 'Heads' : 'Tails');
     createGeneratorTool('yes-no', 'Yes/No Decision', 'Game', 'Random Yes or No.', 'Decide', () => Math.random() < 0.5 ? 'Yes' : 'No');
-    createGeneratorTool('ip-address', 'IP Address (Mock)', 'Dev', 'Simulated IP Lookup.', 'Get IP', () => '192.168.1.' + Math.floor(Math.random() * 255));
+
     createGeneratorTool('mac-address', 'MAC Address Gen', 'Dev', 'Random MAC Address.', 'Generate MAC', () => 'XX:XX:XX:XX:XX:XX'.replace(/X/g, () => '0123456789ABCDEF'.charAt(Math.floor(Math.random() * 16))));
     createGeneratorTool('hex-color', 'Random Color', 'Color', 'Generate random Hex color.', 'Generate Color', () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'));
     createGeneratorTool('password-strength', 'Password Strength', 'Security', 'Check password strength.', 'Check', () => {
@@ -1137,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return (hash >>> 0).toString(16);
 
 });
-    createSimpleTextTool('md5-mock', 'MD5 (Mock)', 'Security', 'Mock MD5 hash (not real security).', (text) => "d41d8cd98f00b204e9800998ecf8427e (Mock)");
+
     createSimpleTextTool("css-minifier", "CSS Minifier", "Dev", "Minify CSS code.", (text) => text.replace(/\s+/g, " "));
     createSimpleTextTool('js-minifier', 'JS Minifier (Simple)', 'Dev', 'Remove comments and whitespace.', (text) => text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' '));
     createSimpleTextTool('html-encode', 'HTML Entity Encode', 'Dev', 'Encode HTML special chars.', (text) => text.replace(/[\u00A0-\u9999<>\&]/g, i => '&#'+i.charCodeAt(0)+';'));
@@ -1196,10 +1197,10 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('space-to-underscore', 'Spaces to Underscores', 'Text', 'Replace spaces with underscores.', (text) => text.replace(/ /g, '_'));
     createSimpleTextTool('remove-special', 'Remove Special Chars', 'Text', 'Keep only alphanumeric.', (text) => text.replace(/[^a-zA-Z0-9 ]/g, ''));
     createSimpleTextTool('keep-numbers', 'Keep Only Numbers', 'Text', 'Remove non-numeric chars.', (text) => text.replace(/[^0-9]/g, ''));
-    createMathTool('bmr-calc', 'BMR Calculator', 'Health', 'Basal Metabolic Rate.',
+    createMathTool('bmr-calc', 'BMR Calculator', 'Health', 'Calculate your Basal Metabolic Rate (BMR) calories.',
         [{key:'w', label:'Weight (kg)'}, {key:'h', label:'Height (cm)'}, {key:'a', label:'Age'}],
         (v) => (10 * v.w + 6.25 * v.h - 5 * v.a + 5).toFixed(0) + ' kcal (M) / ' + (10 * v.w + 6.25 * v.h - 5 * v.a - 161).toFixed(0) + ' kcal (F)');
-    createMathTool('water-intake', 'Water Intake', 'Health', 'Daily water need (L).',
+    createMathTool('water-intake', 'Water Intake', 'Health', 'Calculate your recommended daily water intake in liters.',
         [{key:'w', label:'Weight (kg)'}],
         (v) => (v.w * 0.033).toFixed(2) + ' Liters');
     createMathTool('target-heart-rate', 'Target Heart Rate', 'Health', 'Zone 2 (60-70%).',
@@ -1232,9 +1233,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return (v.p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)).toFixed(2);
 
 });
-    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return Amount'}], (v) => (((v.ret - v.inv) / v.inv) * 100).toFixed(2) + '%');
+    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Calculate the percentage return on an investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return Amount'}], (v) => (((v.ret - v.inv) / v.inv) * 100).toFixed(2) + '%');
     createMathTool('salary-calc', 'Salary Converter', 'Finance', 'Annual to Monthly/Hourly.', [{key:'annual', label:'Annual Salary'}], (v) => `Monthly: ${(v.annual/12).toFixed(2)}\nHourly (2080h): ${(v.annual/2080).toFixed(2)}`);
-    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Simple XML Indent.', (text) => { let formatted = '', indent= ''; text.split(/>\s*</).forEach(node => { if (node.match( /^\/\w/ )) indent = indent.substring(2); formatted += indent + '<' + node + '>\r\n'; if (node.match( /^<?\w[^>]*[^\/]$/ )) indent += '  ';
+    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Format and indent your XML code automatically.', (text) => { let formatted = '', indent= ''; text.split(/>\s*</).forEach(node => { if (node.match( /^\/\w/ )) indent = indent.substring(2); formatted += indent + '<' + node + '>\r\n'; if (node.match( /^<?\w[^>]*[^\/]$/ )) indent += '  ';
 
 }); return formatted.substring(1, formatted.length-3);
 
@@ -1424,24 +1425,24 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('factorial', 'Factorial', 'Math', 'N!', [{key:'n', label:'N'}], (v) => { let r=1; for(let i=2; i<=v.n; i++) r*=i; return r;
 
 });
-    createMathTool('fibonacci', 'Fibonacci', 'Math', 'Nth number.', [{key:'n', label:'N'}], (v) => { let a=0, b=1, t; for(let i=2; i<=v.n; i++){t=a+b; a=b; b=t;} return v.n<1?0:b;
+    createMathTool('fibonacci', 'Fibonacci', 'Math', 'Calculate the Nth number in the Fibonacci sequence.', [{key:'n', label:'N'}], (v) => { let a=0, b=1, t; for(let i=2; i<=v.n; i++){t=a+b; a=b; b=t;} return v.n<1?0:b;
 
 });
-    createMathTool('sqrt', 'Square Root', 'Math', 'Sqrt(x)', [{key:'x', label:'X'}], (v) => Math.sqrt(v.x).toFixed(4));
-    createMathTool('cbrt', 'Cube Root', 'Math', 'Cbrt(x)', [{key:'x', label:'X'}], (v) => Math.cbrt(v.x).toFixed(4));
-    createMathTool('log10', 'Log Base 10', 'Math', 'Log10(x)', [{key:'x', label:'X'}], (v) => Math.log10(v.x).toFixed(4));
-    createMathTool('ln', 'Natural Log', 'Math', 'Ln(x)', [{key:'x', label:'X'}], (v) => Math.log(v.x).toFixed(4));
-    createMathTool('sin', 'Sine', 'Math', 'Sin(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.sin(v.x * Math.PI / 180).toFixed(4));
-    createMathTool('cos', 'Cosine', 'Math', 'Cos(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.cos(v.x * Math.PI / 180).toFixed(4));
-    createMathTool('tan', 'Tangent', 'Math', 'Tan(x deg)', [{key:'x', label:'Degrees'}], (v) => Math.tan(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('sqrt', 'Square Root', 'Math', 'Calculate the square root of a number.', [{key:'x', label:'X'}], (v) => Math.sqrt(v.x).toFixed(4));
+    createMathTool('cbrt', 'Cube Root', 'Math', 'Calculate the cube root of a number.', [{key:'x', label:'X'}], (v) => Math.cbrt(v.x).toFixed(4));
+    createMathTool('log10', 'Log Base 10', 'Math', 'Calculate the base-10 logarithm of a number.', [{key:'x', label:'X'}], (v) => Math.log10(v.x).toFixed(4));
+    createMathTool('ln', 'Natural Log', 'Math', 'Calculate the natural logarithm of a number.', [{key:'x', label:'X'}], (v) => Math.log(v.x).toFixed(4));
+    createMathTool('sin', 'Sine', 'Math', 'Calculate the sine of an angle in degrees.', [{key:'x', label:'Degrees'}], (v) => Math.sin(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('cos', 'Cosine', 'Math', 'Calculate the cosine of an angle in degrees.', [{key:'x', label:'Degrees'}], (v) => Math.cos(v.x * Math.PI / 180).toFixed(4));
+    createMathTool('tan', 'Tangent', 'Math', 'Calculate the tangent of an angle in degrees.', [{key:'x', label:'Degrees'}], (v) => Math.tan(v.x * Math.PI / 180).toFixed(4));
     createMathTool('deg-rad', 'Deg to Rad', 'Math', 'Degrees to Radians.', [{key:'d', label:'Degrees'}], (v) => (v.d * Math.PI / 180).toFixed(4));
     createMathTool('rad-deg', 'Rad to Deg', 'Math', 'Radians to Degrees.', [{key:'r', label:'Radians'}], (v) => (v.r * 180 / Math.PI).toFixed(4));
 
     // Statistics
-    createSimpleTextTool('stats-mean', 'Mean Calculator', 'Math', 'Average of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(4);
+    createSimpleTextTool('stats-mean', 'Mean Calculator', 'Math', 'Calculate the mean (average) of a list of numbers.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(4);
 
 });
-    createSimpleTextTool('stats-median', 'Median Calculator', 'Math', 'Median of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number).sort((a,b)=>a-b); const m = Math.floor(n.length/2); return (n.length%2!==0 ? n[m] : (n[m-1]+n[m])/2).toFixed(4);
+    createSimpleTextTool('stats-median', 'Median Calculator', 'Math', 'Calculate the median value of a list of numbers.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number).sort((a,b)=>a-b); const m = Math.floor(n.length/2); return (n.length%2!==0 ? n[m] : (n[m-1]+n[m])/2).toFixed(4);
 
 });
     createSimpleTextTool('stats-range', 'Range Calculator', 'Math', 'Range (Max-Min).', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (Math.max(...n) - Math.min(...n)).toFixed(4);
@@ -1449,33 +1450,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
     // Text
-    createSimpleTextTool('repeat-string', 'Repeat String', 'Text', 'Repeat text N times (use line1 for N).', (text) => { const lines = text.split('\n'); const n = parseInt(lines[0]) || 1; return lines.slice(1).join('\n').repeat(n);
+    createSimpleTextTool('repeat-string', 'Repeat String', 'Text', 'Repeat a string N times (specify N on the first line).', (text) => { const lines = text.split('\n'); const n = parseInt(lines[0]) || 1; return lines.slice(1).join('\n').repeat(n);
 
 });
-    createSimpleTextTool('pad-start', 'Pad Start', 'Text', 'Pad text start.', (text) => text.split('\n').map(l => l.padStart(20, ' ')).join('\n'));
+    createSimpleTextTool('pad-start', 'Pad Start', 'Text', 'Pad the start of each line with spaces.', (text) => text.split('\n').map(l => l.padStart(20, ' ')).join('\n'));
     createSimpleTextTool('pad-end', 'Pad End', 'Text', 'Pad text end.', (text) => text.split('\n').map(l => l.padEnd(20, ' ')).join('\n'));
     createSimpleTextTool('center-text', 'Center Text', 'Text', 'Center align text (mock).', (text) => text.split('\n').map(l => l.padStart((40 + l.length)/2).padEnd(40)).join('\n'));
     createSimpleTextTool('leet-speak', 'Leet Speak', 'Text', '1337 5p34k.', (text) => text.replace(/[aA]/g,'4').replace(/[eE]/g,'3').replace(/[iI]/g,'1').replace(/[oO]/g,'0').replace(/[sS]/g,'5').replace(/[tT]/g,'7'));
     createSimpleTextTool('obfuscate', 'Obfuscate Text', 'Text', 'Base64 + Reverse.', (text) => btoa(text).split('').reverse().join(''));
 
     // Dev
-    createSimpleTextTool('chmod-calc', 'Chmod Calculator', 'Dev', 'Octal to Symbol (e.g. 755).', (text) => {
+    createSimpleTextTool('chmod-calc', 'Chmod Calculator', 'Dev', 'Convert chmod octal permissions to symbolic notation.', (text) => {
         const p = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx'];
         return text.split('').map(c => p[parseInt(c)] || '').join('');
 
 });
-    createSimpleTextTool('http-status', 'HTTP Status', 'Dev', 'Lookup Code.', (text) => {
+    createSimpleTextTool('http-status', 'HTTP Status', 'Dev', 'Lookup the meaning of HTTP status codes.', (text) => {
         const codes = {200:'OK', 201:'Created', 400:'Bad Request', 401:'Unauthorized', 403:'Forbidden', 404:'Not Found', 500:'Server Error', 502:'Bad Gateway'};
         return codes[text] || 'Unknown';
 
 });
 
     // Health
-    createMathTool('body-fat', 'Body Fat (Navy)', 'Health', 'Est. Body Fat %.', [{key:'w', label:'Waist (cm)'}, {key:'n', label:'Neck (cm)'}, {key:'h', label:'Height (cm)'}], (v) => (495 / (1.0324 - 0.19077 * Math.log10(v.w - v.n) + 0.15456 * Math.log10(v.h)) - 450).toFixed(2) + '%');
-    createMathTool('ideal-weight', 'Ideal Weight (Devine)', 'Health', 'Ideal Weight (kg).', [{key:'h', label:'Height (in)'}], (v) => (50 + 2.3 * (v.h - 60)).toFixed(2) + ' kg');
+    createMathTool('body-fat', 'Body Fat (Navy)', 'Health', 'Estimate your body fat percentage using the US Navy method.', [{key:'w', label:'Waist (cm)'}, {key:'n', label:'Neck (cm)'}, {key:'h', label:'Height (cm)'}], (v) => (495 / (1.0324 - 0.19077 * Math.log10(v.w - v.n) + 0.15456 * Math.log10(v.h)) - 450).toFixed(2) + '%');
+    createMathTool('ideal-weight', 'Ideal Weight (Devine)', 'Health', 'Calculate your ideal body weight using the Devine formula.', [{key:'h', label:'Height (in)'}], (v) => (50 + 2.3 * (v.h - 60)).toFixed(2) + ' kg');
 
     // Finance
-    createMathTool('rule-72', 'Rule of 72', 'Finance', 'Years to double inv.', [{key:'r', label:'Rate %'}], (v) => (72 / v.r).toFixed(2) + ' Years');
+    createMathTool('rule-72', 'Rule of 72', 'Finance', 'Estimate years to double your investment using Rule of 72.', [{key:'r', label:'Rate %'}], (v) => (72 / v.r).toFixed(2) + ' Years');
     createMathTool('vat-calc', 'VAT Calculator', 'Finance', 'Add VAT.', [{key:'p', label:'Price'}, {key:'v', label:'VAT %'}], (v) => (v.p * (1 + v.v/100)).toFixed(2));
     createMathTool('markup-calc', 'Markup Calculator', 'Finance', 'Price + Markup.', [{key:'c', label:'Cost'}, {key:'m', label:'Markup %'}], (v) => (v.c * (1 + v.m/100)).toFixed(2));
     createMathTool('margin-calc', 'Margin Calculator', 'Finance', 'Find Margin.', [{key:'c', label:'Cost'}, {key:'p', label:'Price'}], (v) => ((v.p - v.c) / v.p * 100).toFixed(2) + '%');
@@ -1486,15 +1487,15 @@ document.addEventListener('DOMContentLoaded', () => {
         createMathTool(id + '-rev', name + ' (Rev)', cat, desc, [{key:'v', label:unit2}], (v) => (v.v / factor).toFixed(4) + ' ' + unit1);
     }
 
-    createConverter('pres-bar-psi', 'Bar to PSI', 'Science', 'Pressure.', 'Bar', 'PSI', 14.5038);
+    createConverter('pres-bar-psi', 'Bar to PSI', 'Science', 'Convert pressure units (Bar, PSI, etc.).', 'Bar', 'PSI', 14.5038);
     createConverter('ener-j-wh', 'Joules to Wh', 'Science', 'Energy.', 'Joules', 'Wh', 0.000277778);
-    createConverter('force-n-lbf', 'Newton to lbf', 'Science', 'Force.', 'Newton', 'lbf', 0.224809);
+    createConverter('force-n-lbf', 'Newton to lbf', 'Science', 'Convert force units (Newtons, Pounds-force, etc.).', 'Newton', 'lbf', 0.224809);
     createConverter('angle-deg-grad', 'Deg to Grad', 'Science', 'Angle.', 'Deg', 'Grad', 1.11111);
-    createConverter('data-tb-gb', 'TB to GB', 'Science', 'Data.', 'TB', 'GB', 1024);
+    createConverter('data-tb-gb', 'TB to GB', 'Science', 'Convert digital data storage units.', 'TB', 'GB', 1024);
 
     // Random
-    createGeneratorTool('random-bool', 'True/False', 'Random', 'Random boolean.', 'Flip', () => Math.random() < 0.5 ? 'True' : 'False');
-    createGeneratorTool('random-date', 'Random Date', 'Random', 'Past 50 years.', 'Generate', () => new Date(Date.now() - Math.random() * 1000000000000).toLocaleDateString());
+    createGeneratorTool('random-bool', 'True/False', 'Random', 'Generate a random True or False value.', 'Flip', () => Math.random() < 0.5 ? 'True' : 'False');
+    createGeneratorTool('random-date', 'Random Date', 'Random', 'Generate a random date within the past 50 years.', 'Generate', () => new Date(Date.now() - Math.random() * 1000000000000).toLocaleDateString());
     createGeneratorTool('random-time', 'Random Time', 'Random', '24h format.', 'Generate', () => Math.floor(Math.random()*24).toString().padStart(2,'0') + ':' + Math.floor(Math.random()*60).toString().padStart(2,'0'));
 
     // --- Render & Navigation ---
@@ -1529,6 +1530,8 @@ document.addEventListener('DOMContentLoaded', () => {
         toolView.style.display = 'none';
         dashboard.style.display = 'grid';
         if(categoryTabs) categoryTabs.style.display = 'flex';
+        const toolNav = document.getElementById('tool-nav');
+        if(toolNav) toolNav.style.display = 'none';
         document.getElementById('content-area').classList.add('masked-scroll');
         toolContent.innerHTML = '';
         searchInput.value = '';
@@ -1543,6 +1546,8 @@ document.addEventListener('DOMContentLoaded', () => {
             dashboard.style.display = 'none';
             toolView.style.display = 'flex';
             if(categoryTabs) categoryTabs.style.display = 'none';
+            const toolNav = document.getElementById('tool-nav');
+            if(toolNav) toolNav.style.display = 'flex';
             document.getElementById('content-area').classList.remove('masked-scroll');
             toolTitle.textContent = tool.name;
             const catBadge = document.getElementById('tool-category-badge');
@@ -1636,27 +1641,27 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // More Converters
-    createConverter('area-sqm-sqft', 'Sq Meters to Sq Feet', 'Science', 'Area.', 'm²', 'ft²', 10.7639);
-    createConverter('area-sqkm-sqmi', 'Sq KM to Sq Miles', 'Science', 'Area.', 'km²', 'mi²', 0.386102);
-    createConverter('vol-l-ml', 'Liters to ML', 'Science', 'Volume.', 'L', 'mL', 1000);
-    createConverter('vol-gal-qt', 'Gallons to Quarts', 'Science', 'Volume.', 'Gal', 'Qt', 4);
-    createConverter('vol-qt-pt', 'Quarts to Pints', 'Science', 'Volume.', 'Qt', 'Pt', 2);
-    createConverter('vol-pt-cup', 'Pints to Cups', 'Science', 'Volume.', 'Pt', 'Cup', 2);
-    createConverter('len-cm-in', 'CM to Inches', 'Science', 'Length.', 'cm', 'in', 0.393701);
-    createConverter('len-mm-in', 'MM to Inches', 'Science', 'Length.', 'mm', 'in', 0.0393701);
-    createConverter('len-yd-m', 'Yards to Meters', 'Science', 'Length.', 'yd', 'm', 0.9144);
-    createConverter('mass-oz-g', 'Ounces to Grams', 'Science', 'Mass.', 'oz', 'g', 28.3495);
-    createConverter('mass-t-kg', 'Tons to KG', 'Science', 'Mass.', 't', 'kg', 1000);
-    createConverter('time-wk-d', 'Weeks to Days', 'Time', 'Time.', 'Wk', 'Day', 7);
-    createConverter('time-yr-d', 'Years to Days', 'Time', 'Time.', 'Yr', 'Day', 365.25);
-    createConverter('time-dec-yr', 'Decades to Years', 'Time', 'Time.', 'Dec', 'Yr', 10);
-    createConverter('data-kb-b', 'KB to Bytes', 'Dev', 'Data.', 'KB', 'B', 1024);
-    createConverter('data-pb-tb', 'PB to TB', 'Dev', 'Data.', 'PB', 'TB', 1024);
+    createConverter('area-sqm-sqft', 'Sq Meters to Sq Feet', 'Science', 'Convert area units.', 'm²', 'ft²', 10.7639);
+    createConverter('area-sqkm-sqmi', 'Sq KM to Sq Miles', 'Science', 'Convert area units.', 'km²', 'mi²', 0.386102);
+    createConverter('vol-l-ml', 'Liters to ML', 'Science', 'Convert volume units.', 'L', 'mL', 1000);
+    createConverter('vol-gal-qt', 'Gallons to Quarts', 'Science', 'Convert volume units.', 'Gal', 'Qt', 4);
+    createConverter('vol-qt-pt', 'Quarts to Pints', 'Science', 'Convert volume units.', 'Qt', 'Pt', 2);
+    createConverter('vol-pt-cup', 'Pints to Cups', 'Science', 'Convert volume units.', 'Pt', 'Cup', 2);
+    createConverter('len-cm-in', 'CM to Inches', 'Science', 'Convert length and distance units.', 'cm', 'in', 0.393701);
+    createConverter('len-mm-in', 'MM to Inches', 'Science', 'Convert length and distance units.', 'mm', 'in', 0.0393701);
+    createConverter('len-yd-m', 'Yards to Meters', 'Science', 'Convert length and distance units.', 'yd', 'm', 0.9144);
+    createConverter('mass-oz-g', 'Ounces to Grams', 'Science', 'Convert mass and weight units.', 'oz', 'g', 28.3495);
+    createConverter('mass-t-kg', 'Tons to KG', 'Science', 'Convert mass and weight units.', 't', 'kg', 1000);
+    createConverter('time-wk-d', 'Weeks to Days', 'Time', 'Convert various time units.', 'Wk', 'Day', 7);
+    createConverter('time-yr-d', 'Years to Days', 'Time', 'Convert various time units.', 'Yr', 'Day', 365.25);
+    createConverter('time-dec-yr', 'Decades to Years', 'Time', 'Convert various time units.', 'Dec', 'Yr', 10);
+    createConverter('data-kb-b', 'KB to Bytes', 'Dev', 'Convert digital data storage units.', 'KB', 'B', 1024);
+    createConverter('data-pb-tb', 'PB to TB', 'Dev', 'Convert digital data storage units.', 'PB', 'TB', 1024);
 
     // Simple Math
     createMathTool('circle-circum', 'Circle Circumference', 'Math', '2*pi*r', [{key:'r', label:'Radius'}], (v) => (2 * Math.PI * v.r).toFixed(2));
     createMathTool('sphere-area', 'Sphere Area', 'Math', '4*pi*r^2', [{key:'r', label:'Radius'}], (v) => (4 * Math.PI * v.r * v.r).toFixed(2));
-    createMathTool('cone-vol', 'Cone Volume', 'Math', 'Volume.', [{key:'r', label:'Radius'}, {key:'h', label:'Height'}], (v) => (Math.PI * v.r * v.r * v.h / 3).toFixed(2));
+    createMathTool('cone-vol', 'Cone Volume', 'Math', 'Convert volume units.', [{key:'r', label:'Radius'}, {key:'h', label:'Height'}], (v) => (Math.PI * v.r * v.r * v.h / 3).toFixed(2));
     createMathTool('box-vol', 'Box Volume', 'Math', 'L*W*H', [{key:'l', label:'L'}, {key:'w', label:'W'}, {key:'h', label:'H'}], (v) => (v.l*v.w*v.h).toFixed(2));
     createMathTool('mod', 'Modulo Calculator', 'Math', 'A % B', [{key:'a', label:'A'}, {key:'b', label:'B'}], (v) => v.a % v.b);
 
@@ -1721,7 +1726,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('pot-energy', 'Potential Energy', 'Science', 'm * g * h', [{key:'m', label:'Mass'}, {key:'h', label:'Height'}], (v) => (v.m * 9.8 * v.h).toFixed(4) + ' J');
     createMathTool('torque-calc', 'Torque Calculator', 'Science', 'Force * Radius.', [{key:'f', label:'Force'}, {key:'r', label:'Radius'}], (v) => (v.f * v.r).toFixed(4) + ' Nm');
     createMathTool('power-phys', 'Power (Physics)', 'Science', 'Work / Time.', [{key:'w', label:'Work'}, {key:'t', label:'Time'}], (v) => (v.w / v.t).toFixed(4) + ' W');
-    createSimpleTextTool('element-lookup', 'Element Lookup', 'Science', 'Get symbol.', (text) => { const e = {Hydrogen:'H',Helium:'He',Lithium:'Li',Carbon:'C',Nitrogen:'N',Oxygen:'O',Sodium:'Na',Magnesium:'Mg'}; return e[text] || 'Unknown (Mock DB)'; });
+    createSimpleTextTool('element-lookup', 'Element Lookup', 'Science', 'Get symbol.', (text) => { const e = {Hydrogen:'H',Helium:'He',Lithium:'Li',Carbon:'C',Nitrogen:'N',Oxygen:'O',Sodium:'Na',Magnesium:'Mg'}; return e[text] || 'Element not found'; });
 
     // Finance (Anemic)
     createMathTool('inflation-calc', 'Inflation (Est)', 'Finance', 'Future Value.', [{key:'p', label:'Amount'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => (v.p * Math.pow(1+v.r/100, v.y)).toFixed(2));
@@ -1741,6 +1746,67 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('jwt-decode', 'JWT Decode', 'Dev', 'Decode payload.', (text) => { try { return atob(text.split('.')[1]); } catch(e) { return "Invalid JWT"; } });
     createSimpleTextTool('json-xml', 'JSON to XML', 'Dev', 'Simple converter.', (text) => { const o = JSON.parse(text); return Object.keys(o).map(k => `<${k}>${o[k]}</${k}>`).join('\n'); });
 
+
+
+    // --- Batch 13: Goal 250+ (Finance, Health, Science, Dev) ---
+    // Finance
+    createMathTool('loan-afford', 'Loan Affordability', 'Finance', 'How much can I borrow?', [{key:'inc', label:'Monthly Income'}, {key:'exp', label:'Monthly Debt'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => {
+        const r = v.r/1200; const n = v.y*12; const maxPay = (v.inc - v.exp) * 0.36; // 36% rule
+        return (maxPay * (Math.pow(1+r,n)-1) / (r * Math.pow(1+r,n))).toFixed(2);
+    });
+    createMathTool('cd-calc', 'CD Calculator', 'Finance', 'Certificate of Deposit.', [{key:'p', label:'Deposit'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => (v.p * Math.pow(1+v.r/100, v.y)).toFixed(2));
+    createMathTool('net-worth', 'Net Worth', 'Finance', 'Assets - Liabilities.', [{key:'a', label:'Assets'}, {key:'l', label:'Liabilities'}], (v) => (v.a - v.l).toFixed(2));
+    createMathTool('debt-ratio', 'Debt-to-Income', 'Finance', 'Debt / Income.', [{key:'d', label:'Monthly Debt'}, {key:'i', label:'Monthly Income'}], (v) => ((v.d/v.i)*100).toFixed(2) + '%');
+    createMathTool('expense-ratio', 'Expense Ratio', 'Finance', 'Cost of fund.', [{key:'c', label:'Cost'}, {key:'inv', label:'Investment'}], (v) => ((v.c/v.inv)*100).toFixed(2) + '%');
+
+    // Health
+    createMathTool('bmi-prime', 'BMI Prime', 'Health', 'Ratio to upper limit (25).', [{key:'bmi', label:'BMI'}], (v) => (v.bmi / 25).toFixed(2));
+    createMathTool('lean-body-mass', 'Lean Body Mass (Boer)', 'Health', 'LBM Estimate.', [{key:'w', label:'Weight (kg)'}, {key:'h', label:'Height (cm)'}, {key:'g', label:'Gender (1=M, 0=F)'}], (v) => v.g==1 ? (0.407*v.w + 0.267*v.h - 19.2).toFixed(1) : (0.252*v.w + 0.473*v.h - 48.3).toFixed(1));
+    createMathTool('water-hardness', 'Water Hardness', 'Health', 'ppm to GPG.', [{key:'ppm', label:'ppm'}], (v) => (v.ppm / 17.1).toFixed(2) + ' gpg');
+    createMathTool('sleep-cycle', 'Sleep Cycle Wake', 'Health', 'Wake times (90m cycles).', [{key:'h', label:'Sleep Hour (24)'}, {key:'m', label:'Sleep Min'}], (v) => {
+        const d = new Date(); d.setHours(v.h); d.setMinutes(v.m);
+        let res = ''; for(let i=3; i<=6; i++) { d.setMinutes(d.getMinutes()+90); res += d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ' '; }
+        return res;
+    });
+
+    // Science
+    createMathTool('sound-speed', 'Speed of Sound', 'Science', 'In air at T (°C).', [{key:'t', label:'Temp °C'}], (v) => (331.3 + 0.606 * v.t).toFixed(2) + ' m/s');
+    createMathTool('mach-num', 'Mach Number', 'Science', 'Velocity / Sound Speed.', [{key:'v', label:'Velocity'}, {key:'c', label:'Speed of Sound'}], (v) => (v.v / v.c).toFixed(2));
+    createMathTool('ohms-law-v', 'Ohm\'s Law (V)', 'Science', 'V = I * R', [{key:'i', label:'Current (I)'}, {key:'r', label:'Resistance (R)'}], (v) => (v.i * v.r).toFixed(2) + ' V');
+    createMathTool('ohms-law-i', 'Ohm\'s Law (I)', 'Science', 'I = V / R', [{key:'v', label:'Voltage (V)'}, {key:'r', label:'Resistance (R)'}], (v) => (v.v / v.r).toFixed(2) + ' A');
+    createMathTool('ohms-law-r', 'Ohm\'s Law (R)', 'Science', 'R = V / I', [{key:'v', label:'Voltage (V)'}, {key:'i', label:'Current (I)'}], (v) => (v.v / v.i).toFixed(2) + ' Ω');
+    createMathTool('cap-energy', 'Capacitor Energy', 'Science', '0.5 * C * V^2', [{key:'c', label:'Capacitance (F)'}, {key:'v', label:'Voltage (V)'}], (v) => (0.5 * v.c * v.v * v.v).toFixed(4) + ' J');
+    createMathTool('res-parallel', 'Parallel Resistors', 'Science', 'R1 || R2', [{key:'r1', label:'R1'}, {key:'r2', label:'R2'}], (v) => ((v.r1*v.r2)/(v.r1+v.r2)).toFixed(2) + ' Ω');
+
+    // Color
+    createSimpleTextTool('color-shade', 'Lighten/Darken Hex', 'Color', 'Adjust brightness (e.g. #336699 20).', (text) => {
+        const [hex, percent] = text.split(' ');
+        const num = parseInt(hex.replace('#',''), 16), amt = Math.round(2.55 * parseInt(percent));
+        const R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+        return '#' + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+    });
+    createSimpleTextTool('color-blend', 'Blend Two Colors', 'Color', 'Average RGB.', (text) => {
+        const [c1, c2] = text.split(' ');
+        const n1 = parseInt(c1.replace('#',''), 16), n2 = parseInt(c2.replace('#',''), 16);
+        const r = Math.round(((n1>>16) + (n2>>16))/2);
+        const g = Math.round(((n1>>8&0xFF) + (n2>>8&0xFF))/2);
+        const b = Math.round(((n1&0xFF) + (n2&0xFF))/2);
+        return '#' + (0x1000000 + r*0x10000 + g*0x100 + b).toString(16).slice(1);
+    });
+
+    // Text
+    createSimpleTextTool('text-cleaner', 'Text Cleaner', 'Text', 'Remove non-ASCII.', (text) => text.replace(/[^\x00-\x7F]/g, ''));
+    createSimpleTextTool('random-pass', 'Random Password', 'Security', 'Strong random string.', (text) => Array(16).fill(0).map(()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'.charAt(Math.floor(Math.random()*70))).join(''));
+    createSimpleTextTool('string-stats', 'String Stats', 'Text', 'Entropy & details.', (text) => `Length: ${text.length}\nUnique Chars: ${new Set(text).size}\nDigits: ${(text.match(/\d/g)||[]).length}\nAlpha: ${(text.match(/[a-z]/gi)||[]).length}`);
+
+    // Dev
+    createSimpleTextTool('cron-gen', 'Cron Generator', 'Dev', 'Generate simple cron schedule.', (text) => {
+        // Simple parser
+        if(text === 'daily') return '0 0 * * *';
+        if(text === 'weekly') return '0 0 * * 0';
+        return 'Enter "daily" or "weekly"';
+    });
+    createSimpleTextTool('sql-format-v2', 'SQL Formatter (Adv)', 'Dev', 'Better regex.', (text) => text.replace(/\b(SELECT|FROM|WHERE|AND|OR|ORDER BY|GROUP BY|LIMIT|INSERT|UPDATE|DELETE|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN)\b/gi, '\n$1'));
 
     renderDashboard();
 
