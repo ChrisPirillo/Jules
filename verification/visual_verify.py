@@ -7,17 +7,19 @@ def run():
         page.goto("http://localhost:8080/quicktools/index.html")
         page.wait_for_selector(".tool-card")
 
-        # 1. Screenshot Dashboard with Count & Tabs (No horizontal scroll logic check visually)
-        page.screenshot(path="verification/dashboard_single.png")
+        # 1. Screenshot Dashboard with 200+ Badge
+        page.screenshot(path="verification/dashboard_final_250.png")
         print("Dashboard screenshot saved.")
 
-        # 2. Open Regex Tool
-        page.click(".tool-card[data-tool='regex-real']")
-        page.wait_for_selector("#rx-pattern")
+        # 2. Open Tool
+        page.click(".tool-card[data-tool='mortgage-calc']")
+        page.wait_for_selector("#mortgage-calc-p")
 
-        # Take screenshot of Tool View (Inputs should have same height as buttons)
-        page.screenshot(path="verification/tool_ui_single.png")
-        print("Tool UI screenshot saved.")
+        # 3. Check Scroll Mask (Should be removed on tool page)
+        mask = page.evaluate("getComputedStyle(document.getElementById('content-area')).maskImage")
+        print(f"Tool Mask: {mask}")
+
+        page.screenshot(path="verification/tool_page_clean.png")
 
         browser.close()
 

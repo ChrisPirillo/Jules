@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright
+import time
 
 def run():
     with sync_playwright() as p:
@@ -7,26 +8,36 @@ def run():
         page.goto("http://localhost:8080/quicktools/index.html")
         page.wait_for_selector(".tool-card")
 
-        # 1. Screenshot Dashboard with 200+ Badge
-        page.screenshot(path="verification/dashboard_200.png")
-        print("Dashboard screenshot saved.")
+        # 1. Screenshot Dashboard
+        page.screenshot(path="verification/dashboard_final_250.png")
 
-        # 2. Check Title
-        title = page.title()
-        if "Tooltimate" in title:
-            print("PASS: Title updated.")
+        # 2. Help Modal
+        page.click("#help-btn")
+        page.wait_for_selector("#help-modal")
+        page.screenshot(path="verification/help_modal.png")
+
+        page.click("#help-close")
+        page.wait_for_selector("#help-modal", state="hidden")
+
+        # 3. Logo Link
+        page.evaluate("window.location.hash = '#mortgage-calc'")
+        page.wait_for_selector("#mortgage-calc-p")
+
+        # Click Logo
+        page.click("h1")
+        time.sleep(0.5) # Wait for hashchange
+
+        # Check URL
+        if "#" not in page.url or page.url.endswith("#"):
+            print("PASS: Logo cleared hash.")
         else:
-            print(f"FAIL: Title mismatch ({title}).")
+            print(f"FAIL: Hash not cleared: {page.url}")
 
-        # 3. Check Category Badge in Tool
-        page.click(".tool-card[data-tool='mortgage-calc']")
-        page.wait_for_selector("#tool-category-badge")
-        cat = page.locator("#tool-category-badge").text_content()
-        print(f"Category Badge: {cat}")
-        if cat == "Finance":
-            print("PASS: Category Badge correct.")
+        if page.locator("#dashboard").is_visible():
+            print("PASS: Dashboard visible.")
+        else:
+            print("FAIL: Dashboard hidden.")
 
-        page.screenshot(path="verification/tool_badge.png")
         browser.close()
 
 run()

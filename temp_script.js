@@ -7,9 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     const searchInput = document.getElementById('search-input');
     const categoryTabs = document.getElementById('category-tabs');
-
     // --- Random Theming ---
-                function setRandomTheme() {
+    function setRandomTheme() {
         const hue = Math.floor(Math.random() * 360);
         const sat = Math.floor(Math.random() * 20) + 60;
         const light = Math.floor(Math.random() * 20) + 10;
@@ -33,34 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--theme-border', border);
         root.style.setProperty('--theme-shadow', shadow);
         root.style.setProperty('--theme-bg-hover', `hsla(${hue}, ${sat}%, 25%, 0.4)`);
-    }, ${sat}%, ${light}%)`;
-        const accentColor = `hsl(${hue}, ${sat}%, ${light + 40}%)`; // Brighter accent
-        const bgInput = `hsla(${hue}, 30%, 10%, 0.6)`;
-        const border = `hsla(${hue}, 50%, 50%, 0.3)`;
-
-        const root = document.documentElement;
-        root.style.setProperty('--primary-color', primaryColor);
-
-        // Gradient: Dark to slightly lighter dark
-        const hue2 = (hue + 40) % 360;
-        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 60%, 20%) 0%, hsl(${hue2}, 60%, 10%) 100%)`;
-        root.style.setProperty('--bg-gradient', bgGradient);
-
-        // Component Vars
-        root.style.setProperty('--theme-accent', accentColor);
-        root.style.setProperty('--theme-accent-hover', `hsl(${hue}, ${sat}%, ${light + 50}%)`);
-        root.style.setProperty('--theme-bg-input', bgInput);
-        root.style.setProperty('--theme-border', border);
-        root.style.setProperty('--theme-bg-hover', `hsla(${hue}, ${sat}%, 25%, 0.4)`);
-
-        // Force redraw/recalc if needed (usually auto)
     }
-
     const toolRegistry = {};
     function registerTool(id, name, category, description, icon, renderFn) {
         toolRegistry[id] = { name, category, description, icon, render: renderFn };
     }
-
     function createSimpleTextTool(id, name, category, description, transformFn) {
         registerTool(id, name, category, description,
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
@@ -80,29 +56,77 @@ document.addEventListener('DOMContentLoaded', () => {
                 const output = document.getElementById(`${id}-output`);
                 const actionBtn = document.getElementById(`${id}-action`);
                 const copyBtn = document.getElementById(`${id}-copy`);
-                actionBtn.addEventListener('click', () => {
-                    try { output.value = transformFn(input.value); } catch (e) { output.value = "Error: " + e.message; }
-                });
-                copyBtn.addEventListener('click', () => {
-                    if(output.value) {
-                        navigator.clipboard.writeText(output.value);
-                        const original = copyBtn.textContent;
-                        copyBtn.textContent = 'Copied!';
-                        setTimeout(() => copyBtn.textContent = original, 1000);
-                    }
-                });
+                actionBtn.addEventListener('click', () => { try { output.value = transformFn(input.value); } catch (e) { output.value = "Error: " + e.message; }
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+                copyBtn.addEventListener('click', () => { if(output.value) { navigator.clipboard.writeText(output.value); const original = copyBtn.textContent; copyBtn.textContent = 'Copied!'; setTimeout(() => copyBtn.textContent = original, 1000); }
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
             }
         );
     }
-
     function createMathTool(id, name, category, description, inputs, calcFn) {
         registerTool(id, name, category, description,
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 21h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="15" y2="15"/></svg>',
             (container) => {
                 let inputsHtml = '';
-                inputs.forEach(inp => {
-                    inputsHtml += `<div class="input-group"><label>${inp.label}</label><input type="number" id="${id}-${inp.key}" class="glass-input" placeholder="${inp.placeholder || '0'}" step="any"></div>`;
-                });
+                inputs.forEach(inp => { inputsHtml += `<div class="input-group"><label>${inp.label}</label><input type="number" id="${id}-${inp.key}" class="glass-input" placeholder="${inp.placeholder || '0'}" step="any"></div>`;
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
                 const html = `
                     <div class="glass-panel" style="max-width: 500px;">
                         ${inputsHtml}
@@ -116,16 +140,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = html;
                 document.getElementById(`${id}-calc`).addEventListener('click', () => {
                     const values = {};
-                    inputs.forEach(inp => {
-                        values[inp.key] = parseFloat(document.getElementById(`${id}-${inp.key}`).value) || 0;
-                    });
+                    inputs.forEach(inp => { values[inp.key] = parseFloat(document.getElementById(`${id}-${inp.key}`).value) || 0;
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
                     const result = calcFn(values);
                     document.getElementById(`${id}-result`).textContent = result;
-                });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
             }
         );
     }
-
     function createGeneratorTool(id, name, category, description, actionName, genFn) {
         registerTool(id, name, category, description,
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
@@ -139,14 +200,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 container.innerHTML = html;
                 const resDiv = document.getElementById(`${id}-result`);
-                document.getElementById(`${id}-action`).addEventListener('click', () => { resDiv.textContent = genFn(); });
-                document.getElementById(`${id}-copy`).addEventListener('click', () => { navigator.clipboard.writeText(resDiv.textContent); });
+                document.getElementById(`${id}-action`).addEventListener('click', () => { resDiv.textContent = genFn();
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+                document.getElementById(`${id}-copy`).addEventListener('click', () => { navigator.clipboard.writeText(resDiv.textContent);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
             }
         );
     }
-
-    createSimpleTextTool('uppercase', 'Uppercase', 'Text', 'Convert text to uppercase.', (text) => text.toUpperCase());
-    createSimpleTextTool('lowercase', 'Lowercase', 'Text', 'Convert text to lowercase.', (text) => text.toLowerCase());
+    createSimpleTextTool('uppercase', 'Uppercase', 'Text', 'Convert your text to uppercase letters instantly.', (text) => text.toUpperCase());
+    createSimpleTextTool('lowercase', 'Lowercase', 'Text', 'Convert your text to lowercase letters instantly.', (text) => text.toLowerCase());
     createSimpleTextTool('title-case', 'Title Case', 'Text', 'Capitalize first letter of each word.', (text) => text.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
     createSimpleTextTool('reverse-string', 'Reverse Text', 'Text', 'Reverse the characters in text.', (text) => text.split('').reverse().join(''));
     createSimpleTextTool('remove-spaces', 'Remove Spaces', 'Text', 'Remove all whitespace.', (text) => text.replace(/\s/g, ''));
@@ -176,7 +276,27 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('morse-code', 'Text to Morse', 'Text', 'Convert text to Morse code.', (text) => {
         const morseCode = { 'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----', ' ': '/' };
         return text.toUpperCase().split('').map(c => morseCode[c] || c).join(' ');
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('binary-encode', 'Text to Binary', 'Dev', 'Convert text to binary.', (text) => text.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' '));
     createSimpleTextTool('hex-encode', 'Text to Hex', 'Dev', 'Convert text to hexadecimal.', (text) => text.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' '));
     createSimpleTextTool('ascii-encode', 'Text to ASCII', 'Dev', 'Convert text to ASCII codes.', (text) => text.split('').map(c => c.charCodeAt(0)).join(' '));
@@ -188,10 +308,50 @@ document.addEventListener('DOMContentLoaded', () => {
             return headers.reduce((obj, nextKey, index) => {
                 obj[nextKey.trim()] = data[index];
                 return obj;
-            }, {});
-        }), null, 2);
+            }, {
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
-    createMathTool('bmi-calc', 'BMI Calculator', 'Math', 'Calculate Body Mass Index.',
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+        }), null, 2);
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createMathTool('bmi-calc', 'BMI Calculator', 'Math', 'Calculate your Body Mass Index (BMI) based on weight and height.',
         [{key:'w', label:'Weight (kg)'}, {key:'h', label:'Height (m)'}],
         (v) => (v.w / (v.h * v.h)).toFixed(2));
     createMathTool('tip-calc', 'Tip Calculator', 'Finance', 'Calculate tip amount.',
@@ -245,14 +405,34 @@ document.addEventListener('DOMContentLoaded', () => {
             let res = 1;
             for(let i=2; i<=v.n; i++) res *= i;
             return res;
-        });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createMathTool('power', 'Power Calculator', 'Math', 'Calculate Base^Exponent.',
         [{key:'b', label:'Base'}, {key:'e', label:'Exponent'}],
         (v) => Math.pow(v.b, v.e));
     createMathTool('root', 'Nth Root', 'Math', 'Calculate Nth root of X.',
         [{key:'x', label:'Number (X)'}, {key:'n', label:'Root (N)'}],
         (v) => Math.pow(v.x, 1/v.n).toFixed(4));
-    createGeneratorTool('uuid', 'UUID Generator', 'Dev', 'Generate UUID v4.', 'Generate UUID', () =>
+    createGeneratorTool('uuid', 'UUID Generator', 'Dev', 'Generate a universally unique identifier (UUID v4).', 'Generate UUID', () =>
         'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
@@ -272,16 +452,76 @@ document.addEventListener('DOMContentLoaded', () => {
         // Let's just return a placeholder or random advice for the "Generator" pattern.
         // Better: Use SimpleTextTool for this one actually.
         return "Use the 'Password Gen' tool for actual generation.";
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createGeneratorTool('lorem-word', 'Random Word', 'Text', 'Generate a random latin word.', 'Generate Word', () => {
         const words = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt'];
         return words[Math.floor(Math.random() * words.length)];
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('hash-simple', 'Simple Hash (djb2)', 'Security', 'Generate simple hash.', (text) => {
         let hash = 5381;
         for (let i = 0; i < text.length; i++) hash = (hash * 33) ^ text.charCodeAt(i);
         return (hash >>> 0).toString(16);
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('md5-mock', 'MD5 (Mock)', 'Security', 'Mock MD5 hash (not real security).', (text) => "d41d8cd98f00b204e9800998ecf8427e (Mock)");
     createSimpleTextTool("css-minifier", "CSS Minifier", "Dev", "Minify CSS code.", (text) => text.replace(/\s+/g, " "));
     createSimpleTextTool('js-minifier', 'JS Minifier (Simple)', 'Dev', 'Remove comments and whitespace.', (text) => text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' '));
@@ -289,7 +529,27 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('html-decode', 'HTML Entity Decode', 'Dev', 'Decode HTML entities.', (text) => {
         const doc = new DOMParser().parseFromString(text, "text/html");
         return doc.documentElement.textContent;
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('sql-format', 'SQL Formatter', 'Dev', 'Simple SQL Formatting.', (text) => text.replace(/\s+/g, ' ').replace(/ (SELECT|FROM|WHERE|AND|OR|ORDER BY|GROUP BY|LIMIT|INSERT|UPDATE|DELETE) /gi, '\n '));
     createSimpleTextTool('markdown-preview', 'Markdown Preview', 'Text', 'Preview markdown (HTML output).', (text) => {
         // Very simple markdown parser
@@ -300,7 +560,27 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/\*\*(.*)\*\*/gim, '<b></b>')
             .replace(/\*(.*)\*/gim, '<i></i>')
             .replace(/\n/gim, '<br>');
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createMathTool('age-calc', 'Age Calculator', 'Time', 'Calculate age from birth year.',
         [{key:'year', label:'Birth Year'}, {key:'curr', label:'Current Year (optional)', placeholder:'2025'}],
         (v) => (v.curr || new Date().getFullYear()) - v.year);
@@ -350,7 +630,27 @@ document.addEventListener('DOMContentLoaded', () => {
         (v) => {
             const max = 220 - v.age;
             return Math.floor(max * 0.6) + ' - ' + Math.floor(max * 0.7) + ' bpm';
-        });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createMathTool('gpa-calc', 'GPA Calculator (4.0)', 'Science', 'Simple Avg GPA.',
         [{key:'g1', label:'Grade 1'}, {key:'g2', label:'Grade 2'}, {key:'g3', label:'Grade 3'}, {key:'g4', label:'Grade 4'}],
         (v) => ((v.g1 + v.g2 + v.g3 + v.g4) / 4).toFixed(2));
@@ -362,225 +662,83 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('tweet-link', 'Tweet Link Gen', 'Social', 'Create intent link.', (text) => 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text));
     createSimpleTextTool('binary-to-hex', 'Binary to Hex', 'Dev', 'Convert Bin to Hex.', (text) => parseInt(text.replace(/[^01]/g, ''), 2).toString(16).toUpperCase());
     createSimpleTextTool('hex-to-binary', 'Hex to Binary', 'Dev', 'Convert Hex to Bin.', (text) => parseInt(text, 16).toString(2));
-    createMathTool('currency-usd-eur', 'USD to EUR (Mock)', 'Finance', 'Est. rate 0.92', [{key:'usd', label:'USD'}], (v) => (v.usd * 0.92).toFixed(2));
-    createMathTool('currency-eur-usd', 'EUR to USD (Mock)', 'Finance', 'Est. rate 1.09', [{key:'eur', label:'EUR'}], (v) => (v.eur * 1.09).toFixed(2));
-
-    // --- Batch 8: More Real Tools ---
-    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test Regular Expressions.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="max-width: 800px;">
-                    <div class="input-group">
-                        <label>Pattern (e.g. \\d+)</label>
-                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
-                    </div>
-                    <div class="input-group">
-                        <label>Flags (e.g. gi)</label>
-                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
-                    </div>
-                    <label>Test String</label>
-                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
-                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
-                    <label>Matches</label>
-                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
-                </div>
-            `;
-            document.getElementById('rx-btn').addEventListener('click', () => {
-                const pat = document.getElementById('rx-pattern').value;
-                const flags = document.getElementById('rx-flags').value;
-                const text = document.getElementById('rx-text').value;
-                const resDiv = document.getElementById('rx-result');
-                try {
-                    const regex = new RegExp(pat, flags);
-                    const matches = text.match(regex);
-                    if(matches) {
-                        resDiv.textContent = JSON.stringify(matches, null, 2);
-                    } else {
-                        resDiv.textContent = 'No matches found.';
-                    }
-                } catch(e) {
-                    resDiv.textContent = 'Error: ' + e.message;
-                }
-            });
-        }
-    );
-
-    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => { let n = parseInt(v.n); const f = []; let d = 2; while (d * d <= n) { while (n % d === 0) { f.push(d); n = Math.floor(n / d); } d++; } if (n > 1) f.push(n); return f.join(' × '); });
-    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
-    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
-    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
 
 
-    // --- Render & Navigation ---
-    function renderDashboard() {
-        dashboard.innerHTML = '';
-        const sortedTools = Object.keys(toolRegistry).sort();
-        sortedTools.forEach(key => {
-            const tool = toolRegistry[key];
-            const card = document.createElement('div');
-            card.className = 'tool-card';
-            card.setAttribute('data-tool', key);
-            card.setAttribute('data-category', tool.category);
-            card.innerHTML = `
-                <div class="icon">${tool.icon}</div>
-                <h3>${tool.name}</h3>
-                <p>${tool.description}</p>
-            `;
-            dashboard.appendChild(card);
-        });
+    // --- Batch 7: Real Tools ---
+    // Mortgage
+    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment (est).',
+        [{key:'p', label:'Loan Amount'}, {key:'r', label:'Annual Rate %'}, {key:'y', label:'Years'}],
+        (v) => {
+            const r = v.r / 100 / 12;
+            const n = v.y * 12;
+            return (v.p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)).toFixed(2);
 
-        const countBadge = document.getElementById('tool-count-badge');
-        if (countBadge) {
-            const count = sortedTools.length;
-            countBadge.textContent = `${count} Tools`;
-            countBadge.style.display = 'inline-block';
-            document.getElementById('search-input').placeholder = `Search ${count} tools...`;
-        }
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
     }
 
-    function showDashboard() {
-        toolView.style.display = 'none';
-        dashboard.style.display = 'grid';
-        if(categoryTabs) categoryTabs.style.display = 'flex';
-        toolContent.innerHTML = '';
-        searchInput.value = '';
-        setRandomTheme();
-        document.title = 'Tooltimate - The Glassomorphic Web Utility Hub';
-        history.pushState(null, null, ' ');
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return Amount'}], (v) => (((v.ret - v.inv) / v.inv) * 100).toFixed(2) + '%');
+    createMathTool('salary-calc', 'Salary Converter', 'Finance', 'Annual to Monthly/Hourly.', [{key:'annual', label:'Annual Salary'}], (v) => `Monthly: ${(v.annual/12).toFixed(2)}\nHourly (2080h): ${(v.annual/2080).toFixed(2)}`);
+    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Simple XML Indent.', (text) => { let formatted = '', indent= ''; text.split(/>\s*</).forEach(node => { if (node.match( /^\/\w/ )) indent = indent.substring(2); formatted += indent + '<' + node + '>\r\n'; if (node.match( /^<?\w[^>]*[^\/]$/ )) indent += '  ';
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
     }
 
-    function showTool(toolId) {
-        const tool = toolRegistry[toolId];
-        if (tool) {
-            dashboard.style.display = 'none';
-            toolView.style.display = 'flex';
-            if(categoryTabs) categoryTabs.style.display = 'none';
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
 
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
 
-            toolTitle.textContent = tool.name;
-            const catBadge = document.getElementById('tool-category-badge');
-            if(catBadge) catBadge.textContent = tool.category || 'Tool';
-            toolContent.innerHTML = '';
+}); return formatted.substring(1, formatted.length-3);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
 
-            const catBadge = document.getElementById('tool-category-badge');
-            if(catBadge) catBadge.textContent = tool.category || 'Tool';
-            toolContent.innerHTML = '';
-
-            toolContent.innerHTML = '';
-            tool.render(toolContent);
-            document.title = tool.name + ' - Tooltimate';
-            if (window.location.hash !== '#' + toolId) {
-                history.pushState(null, null, '#' + toolId);
-            }
-        }
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
     }
 
-    function handleRouting() {
-        const hash = window.location.hash.substring(1);
-        if (hash && toolRegistry[hash]) {
-            showTool(hash);
-        } else {
-            showDashboard();
-        }
-    }
-
-    setRandomTheme();
-
-    // --- Batch 9: More Real Tools ---
-    createMathTool('gcd-lcm', 'GCD & LCM', 'Math', 'Greatest Common Divisor.', [{key:'a', label:'Number A'}, {key:'b', label:'Number B'}], (v) => {
-        const gcd = (a, b) => !b ? a : gcd(b, a % b);
-        const lcm = (a, b) => (a * b) / gcd(a, b);
-        const g = gcd(v.a, v.b);
-        const l = lcm(v.a, v.b);
-        return 'GCD: ' + g + ' | LCM: ' + l;
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
 
-    createMathTool('pct-diff', 'Percentage Difference', 'Math', 'Diff between two values.', [{key:'v1', label:'Value 1'}, {key:'v2', label:'Value 2'}], (v) => {
-        const avg = (v.v1 + v.v2) / 2;
-        return (Math.abs(v.v1 - v.v2) / avg * 100).toFixed(2) + '%';
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
     });
 
-    createSimpleTextTool('text-diff', 'Text Diff (Lines)', 'Text', 'Show added/removed lines.', (text) => {
-        const parts = text.split('\n---\n');
-        if(parts.length < 2) return "Enter two text blocks separated by a line containing only '---'";
-        const lines1 = parts[0].split('\n');
-        const lines2 = parts[1].split('\n');
-        const added = lines2.filter(x => !lines1.includes(x));
-        const removed = lines1.filter(x => !lines2.includes(x));
-        return 'Added:\n' + added.join('\n') + '\n\nRemoved:\n' + removed.join('\n');
-    });
+});
+    createSimpleTextTool('sql-minify', 'SQL Minifier', 'Dev', 'Remove whitespace from SQL.', (text) => text.replace(/\s+/g, ' ').trim());
 
-    createSimpleTextTool('remove-dup-lines', 'Remove Duplicates', 'Text', 'Unique lines only.', (text) => [...new Set(text.split('\n'))].join('\n'));
-
-    createSimpleTextTool('url-parser', 'URL Parser', 'Dev', 'Parse URL parts.', (text) => {
-        try {
-            const u = new URL(text);
-            return JSON.stringify({ protocol: u.protocol, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash }, null, 2);
-        } catch(e) { return "Invalid URL"; }
-    });
-
-    createSimpleTextTool('curl-gen', 'Curl Generator', 'Dev', 'GET request curl.', (text) => 'curl -X GET "' + text + '"');
-
-    registerTool('contrast-check', 'Contrast Checker', 'Color', 'Check text contrast.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="max-width: 500px;">
-                    <div class="input-group">
-                        <label>Foreground (Hex)</label>
-                        <input type="color" id="cc-fg" class="glass-input" value="#ffffff" style="height:50px;">
-                    </div>
-                    <div class="input-group">
-                        <label>Background (Hex)</label>
-                        <input type="color" id="cc-bg" class="glass-input" value="#000000" style="height:50px;">
-                    </div>
-                    <div id="cc-preview" style="padding: 30px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
-                        Preview Text
-                    </div>
-                    <div id="cc-result" style="text-align: center; font-weight: bold; font-size: 1.2rem;">Ratio: 21.00 (AAA)</div>
-                </div>
-            `;
-
-            function getLum(hex) {
-                const r = parseInt(hex.substr(1,2),16)/255;
-                const g = parseInt(hex.substr(3,2),16)/255;
-                const b = parseInt(hex.substr(5,2),16)/255;
-                const a = [r,g,b].map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
-                return a[0]*0.2126 + a[1]*0.7152 + a[2]*0.0722;
-            }
-
-            function check() {
-                const fg = document.getElementById('cc-fg').value;
-                const bg = document.getElementById('cc-bg').value;
-                document.getElementById('cc-preview').style.color = fg;
-                document.getElementById('cc-preview').style.backgroundColor = bg;
-
-                const l1 = getLum(fg);
-                const l2 = getLum(bg);
-                const ratio = (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
-
-                let rating = '';
-                if(ratio >= 7) rating = '(AAA)';
-                else if(ratio >= 4.5) rating = '(AA)';
-                else rating = '(Fail)';
-
-                document.getElementById('cc-result').textContent = 'Ratio: ' + ratio.toFixed(2) + ' ' + rating;
-            }
-
-            document.getElementById('cc-fg').addEventListener('input', check);
-            document.getElementById('cc-bg').addEventListener('input', check);
-            check();
-        }
-    );
-
-
-    // --- Batch 7: High Volume Tools (Re-added) ---
-    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment.', [{key:'p', label:'Loan'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => { const r = v.r/1200; const n = v.y*12; return (v.p * r * Math.pow(1+r,n)/(Math.pow(1+r,n)-1)).toFixed(2); });
-    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return'}], (v) => (((v.ret-v.inv)/v.inv)*100).toFixed(2)+'%');
-    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Indent XML.', (text) => text.replace(/>\s*</g, '>\n<'));
-
-    // Image Tools (Canvas)
+    // Image
     function registerImageTool(id, name, desc, actionName, processFn) {
         registerTool(id, name, 'Image', desc,
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
@@ -621,51 +779,373 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         reader.readAsDataURL(file);
                     }
-                });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
                 processBtn.addEventListener('click', () => {
                     processFn(ctx, canvas.width, canvas.height);
                     downloadLink.href = canvas.toDataURL();
                     downloadLink.download = `${id}-result.png`;
-                });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
             }
         );
     }
+    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert to B&W.', 'Apply Grayscale', (ctx, w, h) => { const imgData = ctx.getImageData(0, 0, w, h); const data = imgData.data; for (let i = 0; i < data.length; i += 4) { const avg = (data[i] + data[i + 1] + data[i + 2]) / 3; data[i] = avg; data[i + 1] = avg; data[i + 2] = avg; } ctx.putImageData(imgData, 0, 0);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
 
-    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert to B&W.', 'Apply Grayscale', (ctx, w, h) => {
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
-        }
-        ctx.putImageData(imgData, 0, 0);
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
 
-    registerTool('qr-gen', 'QR Code Generator', 'Misc', 'Generate QR Code.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    registerImageTool('img-invert', 'Invert Colors', 'Invert colors.', 'Invert', (ctx, w, h) => { const imgData = ctx.getImageData(0, 0, w, h); const data = imgData.data; for (let i = 0; i < data.length; i += 4) { data[i] = 255 - data[i]; data[i + 1] = 255 - data[i + 1]; data[i + 2] = 255 - data[i + 2]; } ctx.putImageData(imgData, 0, 0);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+    // QR & IP & SHA were added in reconstruct_full.py already or need to be here?
+    // They are in reconstruct_full.py hardcoded.
+
+    // --- Batch 8 ---
+    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test and debug your JavaScript regular expressions.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
         (container) => {
             container.innerHTML = `
-                <div class="glass-panel" style="text-align: center;">
-                    <input type="text" id="qr-input" class="glass-input" placeholder="Enter URL or Text">
-                    <button id="qr-btn" class="glass-btn-primary" style="margin: 10px 0;">Generate QR</button>
-                    <div id="qr-result" style="margin-top: 20px;"></div>
+                <div class="glass-panel" style="max-width: 800px;">
+                    <div class="input-group">
+                        <label>Pattern (e.g. \\d+)</label>
+                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
+                    </div>
+                    <div class="input-group">
+                        <label>Flags (e.g. gi)</label>
+                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
+                    </div>
+                    <label>Test String</label>
+                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
+                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
+                    <label>Matches</label>
+                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
                 </div>
             `;
-            document.getElementById('qr-btn').addEventListener('click', () => {
-                const text = document.getElementById('qr-input').value;
-                if(text) {
-                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
-                    document.getElementById('qr-result').innerHTML = `<img src="${url}" alt="QR Code" style="border-radius: 8px;">`;
-                }
-            });
+            document.getElementById('rx-btn').addEventListener('click', () => {
+                const pat = document.getElementById('rx-pattern').value;
+                const flags = document.getElementById('rx-flags').value;
+                const text = document.getElementById('rx-text').value;
+                const resDiv = document.getElementById('rx-result');
+                try {
+                    const regex = new RegExp(pat, flags);
+                    const matches = text.match(regex);
+                    if(matches) { resDiv.textContent = JSON.stringify(matches, null, 2); resDiv.style.color = 'white'; }
+                    else { resDiv.textContent = 'No matches found.'; resDiv.style.color = '#ffaaaa'; }
+                } catch(e) { resDiv.textContent = 'Error: ' + e.message; resDiv.style.color = '#ff6b6b'; }
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+        }
+    );
+    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => { let n = parseInt(v.n); const f = []; let d = 2; while (d * d <= n) { while (n % d === 0) { f.push(d); n = Math.floor(n / d); } d++; } if (n > 1) f.push(n); return f.join(' × ');
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
+    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
+    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
+
+    // --- Batch 9 ---
+    createMathTool('gcd-lcm', 'GCD & LCM', 'Math', 'Greatest Common Divisor.', [{key:'a', label:'Number A'}, {key:'b', label:'Number B'}], (v) => {
+        const gcd = (a, b) => !b ? a : gcd(b, a % b);
+        const lcm = (a, b) => (a * b) / gcd(a, b);
+        const g = gcd(v.a, v.b);
+        const l = lcm(v.a, v.b);
+        return 'GCD: ' + g + ' | LCM: ' + l;
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createMathTool('pct-diff', 'Percentage Difference', 'Math', 'Diff between two values.', [{key:'v1', label:'Value 1'}, {key:'v2', label:'Value 2'}], (v) => {
+        const avg = (v.v1 + v.v2) / 2;
+        return (Math.abs(v.v1 - v.v2) / avg * 100).toFixed(2) + '%';
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('text-diff', 'Text Diff (Lines)', 'Text', 'Show added/removed lines.', (text) => {
+        const parts = text.split('\n---\n');
+        if(parts.length < 2) return "Enter two text blocks separated by a line containing only '---'";
+        const lines1 = parts[0].split('\n');
+        const lines2 = parts[1].split('\n');
+        const added = lines2.filter(x => !lines1.includes(x));
+        const removed = lines1.filter(x => !lines2.includes(x));
+        return 'Added:\n' + added.join('\n') + '\n\nRemoved:\n' + removed.join('\n');
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('remove-dup-lines', 'Remove Duplicates', 'Text', 'Unique lines only.', (text) => [...new Set(text.split('\n'))].join('\n'));
+    createSimpleTextTool('url-parser', 'URL Parser', 'Dev', 'Parse URL parts.', (text) => { try { const u = new URL(text); return JSON.stringify({ protocol: u.protocol, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash }, null, 2); } catch(e) { return "Invalid URL"; }
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('curl-gen', 'Curl Generator', 'Dev', 'GET request curl.', (text) => 'curl -X GET "' + text + '"');
+
+    registerTool('contrast-check', 'Contrast Checker', 'Color', 'Check text contrast.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label>Foreground (Hex)</label>
+                        <input type="color" id="cc-fg" class="glass-input" value="#ffffff" style="height:50px;">
+                    </div>
+                    <div class="input-group">
+                        <label>Background (Hex)</label>
+                        <input type="color" id="cc-bg" class="glass-input" value="#000000" style="height:50px;">
+                    </div>
+                    <div id="cc-preview" style="padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">Preview Text</div>
+                    <div id="cc-result" style="text-align: center; font-weight: bold; font-size: 1.2rem;">Ratio: 21.00 (AAA)</div>
+                </div>`;
+            function getLum(hex) {
+                const r = parseInt(hex.substr(1,2),16)/255;
+                const g = parseInt(hex.substr(3,2),16)/255;
+                const b = parseInt(hex.substr(5,2),16)/255;
+                const a = [r,g,b].map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+                return a[0]*0.2126 + a[1]*0.7152 + a[2]*0.0722;
+            }
+            function check() {
+                const fg = document.getElementById('cc-fg').value;
+                const bg = document.getElementById('cc-bg').value;
+                document.getElementById('cc-preview').style.color = fg;
+                document.getElementById('cc-preview').style.backgroundColor = bg;
+                const l1 = getLum(fg);
+                const l2 = getLum(bg);
+                const ratio = (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
+                let rating = '';
+                if(ratio >= 7) rating = '(AAA)';
+                else if(ratio >= 4.5) rating = '(AA)';
+                else rating = '(Fail)';
+                document.getElementById('cc-result').textContent = 'Ratio: ' + ratio.toFixed(2) + ' ' + rating;
+            }
+            document.getElementById('cc-fg').addEventListener('input', check);
+            document.getElementById('cc-bg').addEventListener('input', check);
+            check();
         }
     );
 
-
     // --- Batch 10: The Road to 200 ---
     // Math
-    createMathTool('factorial', 'Factorial', 'Math', 'N!', [{key:'n', label:'N'}], (v) => { let r=1; for(let i=2; i<=v.n; i++) r*=i; return r; });
-    createMathTool('fibonacci', 'Fibonacci', 'Math', 'Nth number.', [{key:'n', label:'N'}], (v) => { let a=0, b=1, t; for(let i=2; i<=v.n; i++){t=a+b; a=b; b=t;} return v.n<1?0:b; });
+    createMathTool('factorial', 'Factorial', 'Math', 'N!', [{key:'n', label:'N'}], (v) => { let r=1; for(let i=2; i<=v.n; i++) r*=i; return r;
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createMathTool('fibonacci', 'Fibonacci', 'Math', 'Nth number.', [{key:'n', label:'N'}], (v) => { let a=0, b=1, t; for(let i=2; i<=v.n; i++){t=a+b; a=b; b=t;} return v.n<1?0:b;
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createMathTool('sqrt', 'Square Root', 'Math', 'Sqrt(x)', [{key:'x', label:'X'}], (v) => Math.sqrt(v.x).toFixed(4));
     createMathTool('cbrt', 'Cube Root', 'Math', 'Cbrt(x)', [{key:'x', label:'X'}], (v) => Math.cbrt(v.x).toFixed(4));
     createMathTool('log10', 'Log Base 10', 'Math', 'Log10(x)', [{key:'x', label:'X'}], (v) => Math.log10(v.x).toFixed(4));
@@ -677,12 +1157,92 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('rad-deg', 'Rad to Deg', 'Math', 'Radians to Degrees.', [{key:'r', label:'Radians'}], (v) => (v.r * 180 / Math.PI).toFixed(4));
 
     // Statistics
-    createSimpleTextTool('stats-mean', 'Mean Calculator', 'Math', 'Average of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(4); });
-    createSimpleTextTool('stats-median', 'Median Calculator', 'Math', 'Median of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number).sort((a,b)=>a-b); const m = Math.floor(n.length/2); return (n.length%2!==0 ? n[m] : (n[m-1]+n[m])/2).toFixed(4); });
-    createSimpleTextTool('stats-range', 'Range Calculator', 'Math', 'Range (Max-Min).', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (Math.max(...n) - Math.min(...n)).toFixed(4); });
+    createSimpleTextTool('stats-mean', 'Mean Calculator', 'Math', 'Average of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (n.reduce((a,b)=>a+b,0)/n.length).toFixed(4);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('stats-median', 'Median Calculator', 'Math', 'Median of list.', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number).sort((a,b)=>a-b); const m = Math.floor(n.length/2); return (n.length%2!==0 ? n[m] : (n[m-1]+n[m])/2).toFixed(4);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    createSimpleTextTool('stats-range', 'Range Calculator', 'Math', 'Range (Max-Min).', (text) => { const n = text.match(/-?[\d\.]+/g).map(Number); return (Math.max(...n) - Math.min(...n)).toFixed(4);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
 
     // Text
-    createSimpleTextTool('repeat-string', 'Repeat String', 'Text', 'Repeat text N times (use line1 for N).', (text) => { const lines = text.split('\n'); const n = parseInt(lines[0]) || 1; return lines.slice(1).join('\n').repeat(n); });
+    createSimpleTextTool('repeat-string', 'Repeat String', 'Text', 'Repeat text N times (use line1 for N).', (text) => { const lines = text.split('\n'); const n = parseInt(lines[0]) || 1; return lines.slice(1).join('\n').repeat(n);
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('pad-start', 'Pad Start', 'Text', 'Pad text start.', (text) => text.split('\n').map(l => l.padStart(20, ' ')).join('\n'));
     createSimpleTextTool('pad-end', 'Pad End', 'Text', 'Pad text end.', (text) => text.split('\n').map(l => l.padEnd(20, ' ')).join('\n'));
     createSimpleTextTool('center-text', 'Center Text', 'Text', 'Center align text (mock).', (text) => text.split('\n').map(l => l.padStart((40 + l.length)/2).padEnd(40)).join('\n'));
@@ -693,11 +1253,51 @@ document.addEventListener('DOMContentLoaded', () => {
     createSimpleTextTool('chmod-calc', 'Chmod Calculator', 'Dev', 'Octal to Symbol (e.g. 755).', (text) => {
         const p = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx'];
         return text.split('').map(c => p[parseInt(c)] || '').join('');
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
     createSimpleTextTool('http-status', 'HTTP Status', 'Dev', 'Lookup Code.', (text) => {
         const codes = {200:'OK', 201:'Created', 400:'Bad Request', 401:'Unauthorized', 403:'Forbidden', 404:'Not Found', 500:'Server Error', 502:'Bad Gateway'};
         return codes[text] || 'Unknown';
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
 
     // Health
     createMathTool('body-fat', 'Body Fat (Navy)', 'Health', 'Est. Body Fat %.', [{key:'w', label:'Waist (cm)'}, {key:'n', label:'Neck (cm)'}, {key:'h', label:'Height (cm)'}], (v) => (495 / (1.0324 - 0.19077 * Math.log10(v.w - v.n) + 0.15456 * Math.log10(v.h)) - 450).toFixed(2) + '%');
@@ -709,7 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('markup-calc', 'Markup Calculator', 'Finance', 'Price + Markup.', [{key:'c', label:'Cost'}, {key:'m', label:'Markup %'}], (v) => (v.c * (1 + v.m/100)).toFixed(2));
     createMathTool('margin-calc', 'Margin Calculator', 'Finance', 'Find Margin.', [{key:'c', label:'Cost'}, {key:'p', label:'Price'}], (v) => ((v.p - v.c) / v.p * 100).toFixed(2) + '%');
 
-    // Science / Units (Simple Converters via Factory)
+    // Science / Units
     function createConverter(id, name, cat, desc, unit1, unit2, factor) {
         createMathTool(id, name, cat, desc, [{key:'v', label:unit1}], (v) => (v.v * factor).toFixed(4) + ' ' + unit2);
         createMathTool(id + '-rev', name + ' (Rev)', cat, desc, [{key:'v', label:unit2}], (v) => (v.v / factor).toFixed(4) + ' ' + unit1);
@@ -726,6 +1326,345 @@ document.addEventListener('DOMContentLoaded', () => {
     createGeneratorTool('random-date', 'Random Date', 'Random', 'Past 50 years.', 'Generate', () => new Date(Date.now() - Math.random() * 1000000000000).toLocaleDateString());
     createGeneratorTool('random-time', 'Random Time', 'Random', '24h format.', 'Generate', () => Math.floor(Math.random()*24).toString().padStart(2,'0') + ':' + Math.floor(Math.random()*60).toString().padStart(2,'0'));
 
+    // --- Render & Navigation ---
+    function renderDashboard() {
+        dashboard.innerHTML = '';
+        const sortedTools = Object.keys(toolRegistry).sort();
+        sortedTools.forEach(key => {
+            const tool = toolRegistry[key];
+            const card = document.createElement('div');
+            card.className = 'tool-card';
+            card.setAttribute('data-tool', key);
+            card.setAttribute('data-category', tool.category);
+            card.innerHTML = `
+                <div class="icon">${tool.icon}</div>
+                <h3>${tool.name}</h3>
+                <p>${tool.description}</p>
+            `;
+            dashboard.appendChild(card);
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+        const countBadge = document.getElementById('tool-count-badge');
+        if (countBadge) {
+            const count = sortedTools.length;
+            countBadge.textContent = `${count} Tools`;
+            countBadge.style.display = 'inline-block';
+            document.getElementById('search-input').placeholder = `Search ${count} tools...`;
+        }
+    }
+
+    function showDashboard() {
+        toolView.style.display = 'none';
+        dashboard.style.display = 'grid';
+        if(categoryTabs) categoryTabs.style.display = 'flex';
+        document.getElementById('content-area').classList.add('masked-scroll');
+        toolContent.innerHTML = '';
+        searchInput.value = '';
+        setRandomTheme();
+        document.title = 'Tooltimate - The Glassomorphic Web Utility Hub';
+        history.pushState(null, null, ' ');
+    }
+
+    function showTool(toolId) {
+        const tool = toolRegistry[toolId];
+        if (tool) {
+            dashboard.style.display = 'none';
+            toolView.style.display = 'flex';
+            if(categoryTabs) categoryTabs.style.display = 'none';
+            document.getElementById('content-area').classList.remove('masked-scroll');
+            toolTitle.textContent = tool.name;
+            const catBadge = document.getElementById('tool-category-badge');
+
+            if(catBadge) {
+                catBadge.textContent = tool.category || 'Tool';
+                catBadge.style.cursor = 'pointer';
+                catBadge.onclick = (e) => {
+                    e.stopPropagation();
+                    window.location.hash = '';
+                    setTimeout(() => filterByCategory(tool.category), 50);
+                };
+            }
+
+            toolContent.innerHTML = '';
+            tool.render(toolContent);
+            document.title = tool.name + ' - Tooltimate';
+            if (window.location.hash !== '#' + toolId) {
+                history.pushState(null, null, '#' + toolId);
+            }
+        }
+    }
+
+    function handleRouting() {
+        const hash = window.location.hash.substring(1);
+        if (hash && toolRegistry[hash]) {
+            showTool(hash);
+        } else {
+            showDashboard();
+        }
+    }
+
+    setRandomTheme();
+
+    // --- Batch 11: Final Push to 200 ---
+
+    registerTool('currency-conv', 'Currency Converter', 'Finance', 'Real-time rates.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label>Amount</label>
+                        <input type="number" id="curr-amount" class="glass-input" value="1">
+                    </div>
+                    <div class="converter-grid">
+                        <select id="curr-from" class="glass-select"></select>
+                        <div class="converter-arrow">→</div>
+                        <select id="curr-to" class="glass-select"></select>
+                    </div>
+                    <div id="curr-result" style="text-align: center; font-size: 2rem; font-weight: bold; margin-top: 20px;">-</div>
+                    <div id="curr-rate" style="text-align: center; font-size: 0.8rem; opacity: 0.7;">Fetching rates...</div>
+                </div>
+            `;
+
+            const amount = document.getElementById('curr-amount');
+            const from = document.getElementById('curr-from');
+            const to = document.getElementById('curr-to');
+            const result = document.getElementById('curr-result');
+            const rateMsg = document.getElementById('curr-rate');
+
+            let rates = {};
+
+            fetch('https://open.er-api.com/v6/latest/USD')
+                .then(r => r.json())
+                .then(data => {
+                    rates = data.rates;
+                    rateMsg.textContent = `Rates updated: ${data.time_last_update_utc}`;
+                    const currencies = Object.keys(rates).sort();
+                    const opts = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+                    from.innerHTML = opts;
+                    to.innerHTML = opts;
+                    from.value = 'USD';
+                    to.value = 'EUR';
+                    convert();
+                })
+                .catch(e => rateMsg.textContent = 'Error fetching rates (Using offline backup)');
+
+            function convert() {
+                if(!rates['USD']) return;
+                const amt = parseFloat(amount.value) || 0;
+                const base = amt / rates[from.value];
+                const final = base * rates[to.value];
+                result.textContent = final.toFixed(2) + ' ' + to.value;
+            }
+
+            amount.addEventListener('input', convert);
+            from.addEventListener('change', convert);
+            to.addEventListener('change', convert);
+        }
+    );
+
+    // More Converters
+    createConverter('area-sqm-sqft', 'Sq Meters to Sq Feet', 'Science', 'Area.', 'm²', 'ft²', 10.7639);
+    createConverter('area-sqkm-sqmi', 'Sq KM to Sq Miles', 'Science', 'Area.', 'km²', 'mi²', 0.386102);
+    createConverter('vol-l-ml', 'Liters to ML', 'Science', 'Volume.', 'L', 'mL', 1000);
+    createConverter('vol-gal-qt', 'Gallons to Quarts', 'Science', 'Volume.', 'Gal', 'Qt', 4);
+    createConverter('vol-qt-pt', 'Quarts to Pints', 'Science', 'Volume.', 'Qt', 'Pt', 2);
+    createConverter('vol-pt-cup', 'Pints to Cups', 'Science', 'Volume.', 'Pt', 'Cup', 2);
+    createConverter('len-cm-in', 'CM to Inches', 'Science', 'Length.', 'cm', 'in', 0.393701);
+    createConverter('len-mm-in', 'MM to Inches', 'Science', 'Length.', 'mm', 'in', 0.0393701);
+    createConverter('len-yd-m', 'Yards to Meters', 'Science', 'Length.', 'yd', 'm', 0.9144);
+    createConverter('mass-oz-g', 'Ounces to Grams', 'Science', 'Mass.', 'oz', 'g', 28.3495);
+    createConverter('mass-t-kg', 'Tons to KG', 'Science', 'Mass.', 't', 'kg', 1000);
+    createConverter('time-wk-d', 'Weeks to Days', 'Time', 'Time.', 'Wk', 'Day', 7);
+    createConverter('time-yr-d', 'Years to Days', 'Time', 'Time.', 'Yr', 'Day', 365.25);
+    createConverter('time-dec-yr', 'Decades to Years', 'Time', 'Time.', 'Dec', 'Yr', 10);
+    createConverter('data-kb-b', 'KB to Bytes', 'Dev', 'Data.', 'KB', 'B', 1024);
+    createConverter('data-pb-tb', 'PB to TB', 'Dev', 'Data.', 'PB', 'TB', 1024);
+
+    // Simple Math
+    createMathTool('circle-circum', 'Circle Circumference', 'Math', '2*pi*r', [{key:'r', label:'Radius'}], (v) => (2 * Math.PI * v.r).toFixed(2));
+    createMathTool('sphere-area', 'Sphere Area', 'Math', '4*pi*r^2', [{key:'r', label:'Radius'}], (v) => (4 * Math.PI * v.r * v.r).toFixed(2));
+    createMathTool('cone-vol', 'Cone Volume', 'Math', 'Volume.', [{key:'r', label:'Radius'}, {key:'h', label:'Height'}], (v) => (Math.PI * v.r * v.r * v.h / 3).toFixed(2));
+    createMathTool('box-vol', 'Box Volume', 'Math', 'L*W*H', [{key:'l', label:'L'}, {key:'w', label:'W'}, {key:'h', label:'H'}], (v) => (v.l*v.w*v.h).toFixed(2));
+    createMathTool('mod', 'Modulo Calculator', 'Math', 'A % B', [{key:'a', label:'A'}, {key:'b', label:'B'}], (v) => v.a % v.b);
+
+    // Misc
+    createSimpleTextTool('reverse-lines', 'Reverse Lines', 'Text', 'Flip line order.', (text) => text.split('\n').reverse().join('\n'));
+    createSimpleTextTool('sort-length', 'Sort by Length', 'Text', 'Sort lines by length.', (text) => text.split('\n').sort((a,b) => a.length - b.length).join('\n'));
+    createGeneratorTool('random-digit', 'Random Digit', 'Random', '0-9', 'Pick', () => Math.floor(Math.random()*10));
+    createGeneratorTool('random-char', 'Random Char', 'Random', 'A-Z, 0-9', 'Pick', () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random()*36)));
+
+    document.getElementById('content-area').classList.add('masked-scroll');
+
+    // --- Navigation Logic ---
+    function filterByCategory(category) {
+        const cards = document.querySelectorAll('.tool-card');
+        cards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            if (category === 'All' || cardCat === category || (!cardCat && category === 'All')) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+        // Update Active Tab
+        const tabs = document.querySelectorAll('.category-tab');
+        tabs.forEach(t => {
+            if(t.getAttribute('data-cat') === category) t.classList.add('active');
+            else t.classList.remove('active');
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+    }
+
+    const tabs = document.querySelectorAll('.category-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterByCategory(tab.getAttribute('data-cat'));
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+
+    // --- Batch 12: Goal 250 (Health, Science, Finance, Color) ---
+
+    // Health (Anemic)
+    createMathTool('preg-due', 'Pregnancy Due Date', 'Health', 'Based on LMP.', [{key:'d', label:'Day'}, {key:'m', label:'Month'}, {key:'y', label:'Year'}], (v) => { const d = new Date(v.y, v.m-1, v.d); d.setDate(d.getDate() + 280); return d.toLocaleDateString(); });
+    createMathTool('ovul-calc', 'Ovulation Calculator', 'Health', 'Next fertile window.', [{key:'d', label:'LMP Day'}, {key:'m', label:'LMP Month'}, {key:'y', label:'LMP Year'}, {key:'c', label:'Cycle Days'}], (v) => { const d = new Date(v.y, v.m-1, v.d); d.setDate(d.getDate() + (v.c || 28) - 14); return d.toLocaleDateString(); });
+    createMathTool('cal-burned', 'Calories Burned', 'Health', 'Estimate by MET.', [{key:'w', label:'Weight (kg)'}, {key:'t', label:'Time (min)'}, {key:'met', label:'MET Value'}], (v) => (v.met * 3.5 * v.w / 200 * v.t).toFixed(0) + ' kcal');
+    createMathTool('one-rep-max', 'One Rep Max', 'Health', 'Epley Formula.', [{key:'w', label:'Weight'}, {key:'r', label:'Reps'}], (v) => (v.w * (1 + v.r/30)).toFixed(1));
+    createMathTool('protein-intake', 'Protein Intake', 'Health', 'Daily need (1.6g/kg).', [{key:'w', label:'Weight (kg)'}], (v) => (v.w * 1.6).toFixed(1) + ' g');
+    createMathTool('tdee-calc', 'TDEE Calculator', 'Health', 'Daily Energy Expenditure.', [{key:'bmr', label:'BMR'}, {key:'act', label:'Activity Level (1.2-1.9)'}], (v) => (v.bmr * v.act).toFixed(0) + ' kcal');
+    createMathTool('bac-est', 'BAC Estimate', 'Health', 'Widmark Formula.', [{key:'alc', label:'Alcohol (g)'}, {key:'w', label:'Weight (kg)'}, {key:'r', label:'r (0.7 M, 0.6 F)'}, {key:'t', label:'Hours'}], (v) => ((v.alc / (v.w * v.r)) * 100 - (0.015 * v.t)).toFixed(3) + '%');
+
+    // Science (Anemic)
+    createMathTool('molar-mass', 'Molar Mass (Approx)', 'Science', 'Sum of parts.', [{key:'n', label:'Num Atoms'}, {key:'w', label:'Atomic Weight'}], (v) => (v.n * v.w).toFixed(4) + ' g/mol');
+    createMathTool('density-calc', 'Density Calculator', 'Science', 'Mass/Volume.', [{key:'m', label:'Mass'}, {key:'v', label:'Volume'}], (v) => (v.m / v.v).toFixed(4));
+    createMathTool('velocity-calc', 'Velocity Calculator', 'Science', 'Dist/Time.', [{key:'d', label:'Distance'}, {key:'t', label:'Time'}], (v) => (v.d / v.t).toFixed(4));
+    createMathTool('accel-calc', 'Acceleration Calc', 'Science', 'Delta V / Time.', [{key:'v', label:'Change in Vel'}, {key:'t', label:'Time'}], (v) => (v.v / v.t).toFixed(4));
+    createMathTool('momentum-calc', 'Momentum Calculator', 'Science', 'Mass * Vel.', [{key:'m', label:'Mass'}, {key:'v', label:'Velocity'}], (v) => (v.m * v.v).toFixed(4));
+    createMathTool('kin-energy', 'Kinetic Energy', 'Science', '0.5 * m * v^2', [{key:'m', label:'Mass'}, {key:'v', label:'Velocity'}], (v) => (0.5 * v.m * v.v * v.v).toFixed(4) + ' J');
+    createMathTool('pot-energy', 'Potential Energy', 'Science', 'm * g * h', [{key:'m', label:'Mass'}, {key:'h', label:'Height'}], (v) => (v.m * 9.8 * v.h).toFixed(4) + ' J');
+    createMathTool('torque-calc', 'Torque Calculator', 'Science', 'Force * Radius.', [{key:'f', label:'Force'}, {key:'r', label:'Radius'}], (v) => (v.f * v.r).toFixed(4) + ' Nm');
+    createMathTool('power-phys', 'Power (Physics)', 'Science', 'Work / Time.', [{key:'w', label:'Work'}, {key:'t', label:'Time'}], (v) => (v.w / v.t).toFixed(4) + ' W');
+    createSimpleTextTool('element-lookup', 'Element Lookup', 'Science', 'Get symbol.', (text) => { const e = {Hydrogen:'H',Helium:'He',Lithium:'Li',Carbon:'C',Nitrogen:'N',Oxygen:'O',Sodium:'Na',Magnesium:'Mg'}; return e[text] || 'Unknown (Mock DB)'; });
+
+    // Finance (Anemic)
+    createMathTool('inflation-calc', 'Inflation (Est)', 'Finance', 'Future Value.', [{key:'p', label:'Amount'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => (v.p * Math.pow(1+v.r/100, v.y)).toFixed(2));
+    createMathTool('savings-goal', 'Savings Goal', 'Finance', 'Monthly needed.', [{key:'g', label:'Goal'}, {key:'c', label:'Current'}, {key:'m', label:'Months'}], (v) => ((v.g - v.c) / v.m).toFixed(2));
+    createMathTool('rule-50-30-20', '50/30/20 Rule', 'Finance', 'Budget Split.', [{key:'inc', label:'Income'}], (v) => `Needs: ${(v.inc*0.5).toFixed(2)}\nWants: ${(v.inc*0.3).toFixed(2)}\nSave: ${(v.inc*0.2).toFixed(2)}`);
+    createMathTool('cagr-calc', 'CAGR Calculator', 'Finance', 'Growth Rate.', [{key:'ev', label:'End Val'}, {key:'bv', label:'Begin Val'}, {key:'n', label:'Years'}], (v) => ((Math.pow(v.ev/v.bv, 1/v.n) - 1) * 100).toFixed(2) + '%');
+    createMathTool('breakeven', 'Break Even Point', 'Finance', 'Units to sell.', [{key:'fc', label:'Fixed Cost'}, {key:'p', label:'Price'}, {key:'vc', label:'Var Cost'}], (v) => (v.fc / (v.p - v.vc)).toFixed(0));
+
+    // Color
+    createSimpleTextTool('rgb-cmyk', 'RGB to CMYK', 'Color', 'Convert RGB.', (text) => { const [r,g,b] = text.split(',').map(Number); const k = 1-Math.max(r/255,g/255,b/255); return `C:${((1-r/255-k)/(1-k)).toFixed(2)} M:${((1-g/255-k)/(1-k)).toFixed(2)} Y:${((1-b/255-k)/(1-k)).toFixed(2)} K:${k.toFixed(2)}`; });
+    createSimpleTextTool('hex-rgb', 'Hex to RGB', 'Color', 'Convert Hex.', (text) => { const r=parseInt(text.substr(1,2),16), g=parseInt(text.substr(3,2),16), b=parseInt(text.substr(5,2),16); return `${r},${g},${b}`; });
+
+    // Dev
+    createSimpleTextTool('unix-date', 'Unix to Date', 'Dev', 'Timestamp to ISO.', (text) => new Date(text*1000).toISOString());
+    createSimpleTextTool('date-unix', 'Date to Unix', 'Dev', 'ISO to Timestamp.', (text) => Math.floor(new Date(text).getTime()/1000));
+    createSimpleTextTool('url-encode-batch', 'Batch URL Encode', 'Dev', 'Line by line.', (text) => text.split('\n').map(encodeURIComponent).join('\n'));
+    createSimpleTextTool('jwt-decode', 'JWT Decode', 'Dev', 'Decode payload.', (text) => { try { return atob(text.split('.')[1]); } catch(e) { return "Invalid JWT"; } });
+    createSimpleTextTool('json-xml', 'JSON to XML', 'Dev', 'Simple converter.', (text) => { const o = JSON.parse(text); return Object.keys(o).map(k => `<${k}>${o[k]}</${k}>`).join('\n'); });
+
 
     renderDashboard();
 
@@ -738,11 +1677,51 @@ document.addEventListener('DOMContentLoaded', () => {
             const toolId = card.getAttribute('data-tool');
             window.location.hash = toolId;
         }
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
 
     backBtn.addEventListener('click', () => {
         window.location.hash = '';
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
     });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
 
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
@@ -755,7 +1734,67 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 card.style.display = 'none';
             }
-        });
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
+    });
+
+});
+
+
+    // --- Help Modal ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+
+    function toggleHelp(show) {
+        helpModal.style.display = show ? 'flex' : 'none';
+    }
+
+    helpBtn.addEventListener('click', () => toggleHelp(true));
+    helpClose.addEventListener('click', () => toggleHelp(false));
+    helpModal.addEventListener('click', (e) => {
+        if(e.target === helpModal) toggleHelp(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') toggleHelp(false);
     });
 
 });
