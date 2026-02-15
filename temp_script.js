@@ -7,24 +7,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     const searchInput = document.getElementById('search-input');
     const categoryTabs = document.getElementById('category-tabs');
-    function setRandomTheme() {
+
+    // --- Random Theming ---
+        function setRandomTheme() {
         const hue = Math.floor(Math.random() * 360);
-        const sat = Math.floor(Math.random() * 20) + 60; // 60-80%
-        const light = Math.floor(Math.random() * 20) + 40; // 40-60%
-        const primaryColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        // Darker Theme: Saturation 60-80%, Lightness 10-30%
+        const sat = Math.floor(Math.random() * 20) + 60;
+        const light = Math.floor(Math.random() * 20) + 10;
+
+        const primaryColor = ;
+        const accentColor = ; // Brighter accent
+        const bgInput = ;
+        const border = ;
 
         const root = document.documentElement;
         root.style.setProperty('--primary-color', primaryColor);
 
+        // Gradient: Dark to slightly lighter dark
         const hue2 = (hue + 40) % 360;
-        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 70%, 60%) 0%, hsl(${hue2}, 70%, 40%) 100%)`;
+        const bgGradient = ;
         root.style.setProperty('--bg-gradient', bgGradient);
+
+        // Component Vars
+        root.style.setProperty('--theme-accent', accentColor);
+        root.style.setProperty('--theme-accent-hover', );
+        root.style.setProperty('--theme-bg-input', bgInput);
+        root.style.setProperty('--theme-border', border);
+        root.style.setProperty('--theme-bg-hover', );
+
+        // Force redraw/recalc if needed (usually auto)
     }
 
-
-    // --- Tool Factory ---
     const toolRegistry = {};
-
     function registerTool(id, name, category, description, icon, renderFn) {
         toolRegistry[id] = { name, category, description, icon, render: renderFn };
     }
@@ -44,20 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 container.innerHTML = html;
-
                 const input = document.getElementById(`${id}-input`);
                 const output = document.getElementById(`${id}-output`);
                 const actionBtn = document.getElementById(`${id}-action`);
                 const copyBtn = document.getElementById(`${id}-copy`);
-
                 actionBtn.addEventListener('click', () => {
-                    try {
-                        output.value = transformFn(input.value);
-                    } catch (e) {
-                        output.value = "Error: " + e.message;
-                    }
+                    try { output.value = transformFn(input.value); } catch (e) { output.value = "Error: " + e.message; }
                 });
-
                 copyBtn.addEventListener('click', () => {
                     if(output.value) {
                         navigator.clipboard.writeText(output.value);
@@ -78,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 inputs.forEach(inp => {
                     inputsHtml += `<div class="input-group"><label>${inp.label}</label><input type="number" id="${id}-${inp.key}" class="glass-input" placeholder="${inp.placeholder || '0'}" step="any"></div>`;
                 });
-
                 const html = `
                     <div class="glass-panel" style="max-width: 500px;">
                         ${inputsHtml}
@@ -90,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 container.innerHTML = html;
-
                 document.getElementById(`${id}-calc`).addEventListener('click', () => {
                     const values = {};
                     inputs.forEach(inp => {
@@ -115,21 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 container.innerHTML = html;
-
                 const resDiv = document.getElementById(`${id}-result`);
-
-                document.getElementById(`${id}-action`).addEventListener('click', () => {
-                    resDiv.textContent = genFn();
-                });
-
-                document.getElementById(`${id}-copy`).addEventListener('click', () => {
-                     navigator.clipboard.writeText(resDiv.textContent);
-                });
+                document.getElementById(`${id}-action`).addEventListener('click', () => { resDiv.textContent = genFn(); });
+                document.getElementById(`${id}-copy`).addEventListener('click', () => { navigator.clipboard.writeText(resDiv.textContent); });
             }
         );
     }
-
-    // --- Tools ---
 
     createSimpleTextTool('uppercase', 'Uppercase', 'Text', 'Convert text to uppercase.', (text) => text.toUpperCase());
     createSimpleTextTool('lowercase', 'Lowercase', 'Text', 'Convert text to lowercase.', (text) => text.toLowerCase());
@@ -268,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < text.length; i++) hash = (hash * 33) ^ text.charCodeAt(i);
         return (hash >>> 0).toString(16);
     });
-
+    createSimpleTextTool('md5-mock', 'MD5 (Mock)', 'Security', 'Mock MD5 hash (not real security).', (text) => "d41d8cd98f00b204e9800998ecf8427e (Mock)");
     createSimpleTextTool("css-minifier", "CSS Minifier", "Dev", "Minify CSS code.", (text) => text.replace(/\s+/g, " "));
     createSimpleTextTool('js-minifier', 'JS Minifier (Simple)', 'Dev', 'Remove comments and whitespace.', (text) => text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' '));
     createSimpleTextTool('html-encode', 'HTML Entity Encode', 'Dev', 'Encode HTML special chars.', (text) => text.replace(/[\u00A0-\u9999<>\&]/g, i => '&#'+i.charCodeAt(0)+';'));
@@ -351,6 +347,52 @@ document.addEventListener('DOMContentLoaded', () => {
     createMathTool('currency-usd-eur', 'USD to EUR (Mock)', 'Finance', 'Est. rate 0.92', [{key:'usd', label:'USD'}], (v) => (v.usd * 0.92).toFixed(2));
     createMathTool('currency-eur-usd', 'EUR to USD (Mock)', 'Finance', 'Est. rate 1.09', [{key:'eur', label:'EUR'}], (v) => (v.eur * 1.09).toFixed(2));
 
+    // --- Batch 8: More Real Tools ---
+    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test Regular Expressions.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="max-width: 800px;">
+                    <div class="input-group">
+                        <label>Pattern (e.g. \\d+)</label>
+                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
+                    </div>
+                    <div class="input-group">
+                        <label>Flags (e.g. gi)</label>
+                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
+                    </div>
+                    <label>Test String</label>
+                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
+                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
+                    <label>Matches</label>
+                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
+                </div>
+            `;
+            document.getElementById('rx-btn').addEventListener('click', () => {
+                const pat = document.getElementById('rx-pattern').value;
+                const flags = document.getElementById('rx-flags').value;
+                const text = document.getElementById('rx-text').value;
+                const resDiv = document.getElementById('rx-result');
+                try {
+                    const regex = new RegExp(pat, flags);
+                    const matches = text.match(regex);
+                    if(matches) {
+                        resDiv.textContent = JSON.stringify(matches, null, 2);
+                    } else {
+                        resDiv.textContent = 'No matches found.';
+                    }
+                } catch(e) {
+                    resDiv.textContent = 'Error: ' + e.message;
+                }
+            });
+        }
+    );
+
+    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => { let n = parseInt(v.n); const f = []; let d = 2; while (d * d <= n) { while (n % d === 0) { f.push(d); n = Math.floor(n / d); } d++; } if (n > 1) f.push(n); return f.join(' × '); });
+    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
+    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
+    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
+
 
     // --- Render & Navigation ---
     function renderDashboard() {
@@ -369,24 +411,28 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             dashboard.appendChild(card);
         });
+
+        const countBadge = document.getElementById('tool-count-badge');
+        if (countBadge) {
+            const count = sortedTools.length;
+            countBadge.textContent = `${count} Tools`;
+            countBadge.style.display = 'inline-block';
+            document.getElementById('search-input').placeholder = `Search ${count} tools...`;
+        }
     }
 
-        function showDashboard() {
+    function showDashboard() {
         toolView.style.display = 'none';
         dashboard.style.display = 'grid';
         if(categoryTabs) categoryTabs.style.display = 'flex';
         toolContent.innerHTML = '';
         searchInput.value = '';
-
-        // Reset Theme
-        const app = document.getElementById('app');
-        app.className = ''; // Reset
-
+        setRandomTheme();
         document.title = 'Crystal Tools - The Glassomorphic Web Utility Hub';
         history.pushState(null, null, ' ');
     }
 
-        function showTool(toolId) {
+    function showTool(toolId) {
         const tool = toolRegistry[toolId];
         if (tool) {
             dashboard.style.display = 'none';
@@ -394,12 +440,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if(categoryTabs) categoryTabs.style.display = 'none';
             toolTitle.textContent = tool.name;
             toolContent.innerHTML = '';
-
-            // Theme is randomized on load
-
             tool.render(toolContent);
             document.title = tool.name + ' - Crystal Tools';
-
             if (window.location.hash !== '#' + toolId) {
                 history.pushState(null, null, '#' + toolId);
             }
@@ -416,9 +458,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setRandomTheme();
+
+    // --- Batch 9: More Real Tools ---
+    createMathTool('gcd-lcm', 'GCD & LCM', 'Math', 'Greatest Common Divisor.', [{key:'a', label:'Number A'}, {key:'b', label:'Number B'}], (v) => {
+        const gcd = (a, b) => !b ? a : gcd(b, a % b);
+        const lcm = (a, b) => (a * b) / gcd(a, b);
+        const g = gcd(v.a, v.b);
+        const l = lcm(v.a, v.b);
+        return 'GCD: ' + g + ' | LCM: ' + l;
+    });
+
+    createMathTool('pct-diff', 'Percentage Difference', 'Math', 'Diff between two values.', [{key:'v1', label:'Value 1'}, {key:'v2', label:'Value 2'}], (v) => {
+        const avg = (v.v1 + v.v2) / 2;
+        return (Math.abs(v.v1 - v.v2) / avg * 100).toFixed(2) + '%';
+    });
+
+    createSimpleTextTool('text-diff', 'Text Diff (Lines)', 'Text', 'Show added/removed lines.', (text) => {
+        const parts = text.split('\n---\n');
+        if(parts.length < 2) return "Enter two text blocks separated by a line containing only '---'";
+        const lines1 = parts[0].split('\n');
+        const lines2 = parts[1].split('\n');
+        const added = lines2.filter(x => !lines1.includes(x));
+        const removed = lines1.filter(x => !lines2.includes(x));
+        return 'Added:\n' + added.join('\n') + '\n\nRemoved:\n' + removed.join('\n');
+    });
+
+    createSimpleTextTool('remove-dup-lines', 'Remove Duplicates', 'Text', 'Unique lines only.', (text) => [...new Set(text.split('\n'))].join('\n'));
+
+    createSimpleTextTool('url-parser', 'URL Parser', 'Dev', 'Parse URL parts.', (text) => {
+        try {
+            const u = new URL(text);
+            return JSON.stringify({ protocol: u.protocol, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash }, null, 2);
+        } catch(e) { return "Invalid URL"; }
+    });
+
+    createSimpleTextTool('curl-gen', 'Curl Generator', 'Dev', 'GET request curl.', (text) => 'curl -X GET "' + text + '"');
+
+    registerTool('contrast-check', 'Contrast Checker', 'Color', 'Check text contrast.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label>Foreground (Hex)</label>
+                        <input type="color" id="cc-fg" class="glass-input" value="#ffffff" style="height:50px;">
+                    </div>
+                    <div class="input-group">
+                        <label>Background (Hex)</label>
+                        <input type="color" id="cc-bg" class="glass-input" value="#000000" style="height:50px;">
+                    </div>
+                    <div id="cc-preview" style="padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
+                        Preview Text
+                    </div>
+                    <div id="cc-result" style="text-align: center; font-weight: bold; font-size: 1.2rem;">Ratio: 21.00 (AAA)</div>
+                </div>
+            `;
+
+            function getLum(hex) {
+                const r = parseInt(hex.substr(1,2),16)/255;
+                const g = parseInt(hex.substr(3,2),16)/255;
+                const b = parseInt(hex.substr(5,2),16)/255;
+                const a = [r,g,b].map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+                return a[0]*0.2126 + a[1]*0.7152 + a[2]*0.0722;
+            }
+
+            function check() {
+                const fg = document.getElementById('cc-fg').value;
+                const bg = document.getElementById('cc-bg').value;
+                document.getElementById('cc-preview').style.color = fg;
+                document.getElementById('cc-preview').style.backgroundColor = bg;
+
+                const l1 = getLum(fg);
+                const l2 = getLum(bg);
+                const ratio = (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
+
+                let rating = '';
+                if(ratio >= 7) rating = '(AAA)';
+                else if(ratio >= 4.5) rating = '(AA)';
+                else rating = '(Fail)';
+
+                document.getElementById('cc-result').textContent = 'Ratio: ' + ratio.toFixed(2) + ' ' + rating;
+            }
+
+            document.getElementById('cc-fg').addEventListener('input', check);
+            document.getElementById('cc-bg').addEventListener('input', check);
+            check();
+        }
+    );
+
     renderDashboard();
 
-    // Listeners
     window.addEventListener('hashchange', handleRouting);
     if (window.location.hash) handleRouting();
 
@@ -447,513 +576,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-
-    // --- Update Tool Count ---
-    const countBadge = document.getElementById('tool-count-badge');
-
-    // --- Batch 8: More Real Tools ---
-
-    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test Regular Expressions.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="max-width: 800px;">
-                    <div class="input-group">
-                        <label>Pattern (e.g. \\d+)</label>
-                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
-                    </div>
-                    <div class="input-group">
-                        <label>Flags (e.g. gi)</label>
-                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
-                    </div>
-                    <label>Test String</label>
-                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
-                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
-                    <label>Matches</label>
-                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
-                </div>
-            `;
-            document.getElementById('rx-btn').addEventListener('click', () => {
-                const pat = document.getElementById('rx-pattern').value;
-                const flags = document.getElementById('rx-flags').value;
-                const text = document.getElementById('rx-text').value;
-                const resDiv = document.getElementById('rx-result');
-
-                try {
-                    const regex = new RegExp(pat, flags);
-                    const matches = text.match(regex);
-                    if(matches) {
-                        resDiv.textContent = JSON.stringify(matches, null, 2);
-                        resDiv.style.color = 'white';
-                    } else {
-                        resDiv.textContent = 'No matches found.';
-                        resDiv.style.color = '#ffaaaa';
-                    }
-                } catch(e) {
-                    resDiv.textContent = 'Error: ' + e.message;
-                    resDiv.style.color = '#ff6b6b';
-                }
-            });
-        }
-    );
-
-    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => {
-        let n = parseInt(v.n);
-        const factors = [];
-        let d = 2;
-        while (d * d <= n) {
-            while (n % d === 0) {
-                factors.push(d);
-                n = Math.floor(n / d);
-            }
-            d++;
-        }
-        if (n > 1) factors.push(n);
-        return factors.join(' × ');
-    });
-
-    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
-    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
-    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
-
-    if (countBadge) {
-        const count = Object.keys(toolRegistry).length;
-        countBadge.textContent = `${count} Tools`;
-        countBadge.style.display = 'inline-block';
-        document.getElementById('search-input').placeholder = `Search ${count} tools...`;
-    }
-
-    // --- Batch 6: Fun & More Text Tools ---
-    createGeneratorTool('random-quote', 'Random Quote', 'Game', 'Get a random quote.', 'Get Quote', () => {
-        const quotes = [
-            "The only way to do great work is to love what you do. - Steve Jobs",
-            "Innovation distinguishes between a leader and a follower. - Steve Jobs",
-            "Stay hungry, stay foolish. - Steve Jobs",
-            "Code is like humor. When you have to explain it, it’s bad. - Cory House",
-            "First, solve the problem. Then, write the code. - John Johnson",
-            "Simplicity is the soul of efficiency. - Austin Freeman"
-        ];
-        return quotes[Math.floor(Math.random() * quotes.length)];
-    });
-
-    createGeneratorTool('dad-joke', 'Dad Joke', 'Game', 'Get a random dad joke.', 'Get Joke', () => {
-        const jokes = [
-            "I'm afraid for the calendar. Its days are numbered.",
-            "My wife said I should do lunges to stay in shape. That would be a big step forward.",
-            "Why do fathers take an extra pair of socks when they go golfing? In case they get a hole in one!",
-            "Singing in the shower is fun until you get soap in your mouth. Then it's a soap opera.",
-            "What do a tick and the Eiffel Tower have in common? They're both Paris sites."
-        ];
-        return jokes[Math.floor(Math.random() * jokes.length)];
-    });
-
-    createSimpleTextTool('reverse-lines', 'Reverse Line Order', 'Text', 'Reverse lines top-bottom.', (text) => text.split('\n').reverse().join('\n'));
-    createSimpleTextTool('shuffle-words', 'Shuffle Words', 'Text', 'Shuffle words in text.', (text) => text.split(' ').sort(() => 0.5 - Math.random()).join(' '));
-    createSimpleTextTool('alternating-case', 'Alternating Case', 'Text', 'tExT lIkE tHiS.', (text) => text.split('').map((c,i) => i%2 ? c.toUpperCase() : c.toLowerCase()).join(''));
-    createSimpleTextTool('sponge-case', 'Spongebob Case', 'Text', 'mOcKiNg tExT.', (text) => text.split('').map(c => Math.random() > 0.5 ? c.toUpperCase() : c.toLowerCase()).join(''));
-
-    createMathTool('prime-check', 'Prime Checker', 'Math', 'Is N prime?', [{key:'n', label:'Number'}], (v) => {
-        const n = parseInt(v.n);
-        if (n <= 1) return 'No';
-        if (n <= 3) return 'Yes';
-        if (n % 2 === 0 || n % 3 === 0) return 'No';
-        for (let i = 5; i * i <= n; i += 6) {
-            if (n % i === 0 || n % (i + 2) === 0) return 'No';
-        }
-        return 'Yes';
-    });
-
-    createMathTool('even-odd', 'Even/Odd Checker', 'Math', 'Is N even or odd?', [{key:'n', label:'Number'}], (v) => v.n % 2 === 0 ? 'Even' : 'Odd');
-
-    // Refresh
-    setRandomTheme();
-    renderDashboard();
-
-    // --- Batch 8: More Real Tools ---
-
-    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test Regular Expressions.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="max-width: 800px;">
-                    <div class="input-group">
-                        <label>Pattern (e.g. \\d+)</label>
-                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
-                    </div>
-                    <div class="input-group">
-                        <label>Flags (e.g. gi)</label>
-                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
-                    </div>
-                    <label>Test String</label>
-                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
-                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
-                    <label>Matches</label>
-                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
-                </div>
-            `;
-            document.getElementById('rx-btn').addEventListener('click', () => {
-                const pat = document.getElementById('rx-pattern').value;
-                const flags = document.getElementById('rx-flags').value;
-                const text = document.getElementById('rx-text').value;
-                const resDiv = document.getElementById('rx-result');
-
-                try {
-                    const regex = new RegExp(pat, flags);
-                    const matches = text.match(regex);
-                    if(matches) {
-                        resDiv.textContent = JSON.stringify(matches, null, 2);
-                        resDiv.style.color = 'white';
-                    } else {
-                        resDiv.textContent = 'No matches found.';
-                        resDiv.style.color = '#ffaaaa';
-                    }
-                } catch(e) {
-                    resDiv.textContent = 'Error: ' + e.message;
-                    resDiv.style.color = '#ff6b6b';
-                }
-            });
-        }
-    );
-
-    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => {
-        let n = parseInt(v.n);
-        const factors = [];
-        let d = 2;
-        while (d * d <= n) {
-            while (n % d === 0) {
-                factors.push(d);
-                n = Math.floor(n / d);
-            }
-            d++;
-        }
-        if (n > 1) factors.push(n);
-        return factors.join(' × ');
-    });
-
-    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
-    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
-    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
-
-    if (countBadge) {
-        const newCount = Object.keys(toolRegistry).length;
-        countBadge.textContent = `${newCount} Tools`;
-        document.getElementById('search-input').placeholder = `Search ${newCount} tools...`;
-    }
-
-    // --- Batch 7: High Volume & Complex Tools ---
-
-    registerTool('sha256', 'SHA-256 Hash', 'Security', 'Generate SHA-256 hash.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-        (container) => {
-             container.innerHTML = `
-                <div class="glass-panel" style="max-width: 800px;">
-                    <textarea id="sha-input" class="glass-textarea" placeholder="Enter text..."></textarea>
-                    <button id="sha-btn" class="glass-btn-primary" style="width: 100%; margin-bottom: 10px;">Generate Hash</button>
-                    <textarea id="sha-output" class="glass-textarea" readonly placeholder="Hash..."></textarea>
-                </div>
-            `;
-            document.getElementById('sha-btn').addEventListener('click', async () => {
-                const text = document.getElementById('sha-input').value;
-                const msgBuffer = new TextEncoder().encode(text);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                document.getElementById('sha-output').value = hashHex;
-            });
-        }
-    );
-
-
-    registerTool('ip-address', 'Public IP', 'Dev', 'Get your public IP.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="text-align: center;">
-                    <div id="ip-result" style="font-size: 2rem; font-weight: bold; margin: 20px 0;">---.---.---.---</div>
-                    <button id="ip-btn" class="glass-btn-primary">Fetch IP</button>
-                </div>
-            `;
-            document.getElementById('ip-btn').addEventListener('click', () => {
-                const resDiv = document.getElementById('ip-result');
-                resDiv.textContent = 'Fetching...';
-                fetch('https://api.ipify.org?format=json')
-                    .then(res => res.json())
-                    .then(data => resDiv.textContent = data.ip)
-                    .catch(e => resDiv.textContent = 'Error');
-            });
-        }
-    );
-
-
-    // Finance
-    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment (est).',
-        [{key:'p', label:'Loan Amount'}, {key:'r', label:'Annual Rate %'}, {key:'y', label:'Years'}],
-        (v) => {
-            const r = v.r / 100 / 12;
-            const n = v.y * 12;
-            return (v.p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)).toFixed(2);
-        });
-
-    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.',
-        [{key:'inv', label:'Investment'}, {key:'ret', label:'Return Amount'}],
-        (v) => (((v.ret - v.inv) / v.inv) * 100).toFixed(2) + '%');
-
-    createMathTool('salary-calc', 'Salary Converter', 'Finance', 'Annual to Monthly/Hourly.',
-        [{key:'annual', label:'Annual Salary'}],
-        (v) => `Monthly: ${(v.annual/12).toFixed(2)}\nHourly (2080h): ${(v.annual/2080).toFixed(2)}`);
-
-    // Dev/Data
-    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Simple XML Indent.', (text) => {
-        let formatted = '', indent= '';
-        text.split(/>\s*</).forEach(node => {
-            if (node.match( /^\/\w/ )) indent = indent.substring(2);
-            formatted += indent + '<' + node + '>\r\n';
-            if (node.match( /^<?\w[^>]*[^\/]$/ )) indent += '  ';
-        });
-        return formatted.substring(1, formatted.length-3);
-    });
-
-    createSimpleTextTool('sql-minify', 'SQL Minifier', 'Dev', 'Remove whitespace from SQL.', (text) => text.replace(/\s+/g, ' ').trim());
-
-    // Image (Canvas based)
-    // We need a custom render function for Image tools
-    function registerImageTool(id, name, desc, actionName, processFn) {
-        registerTool(id, name, 'Image', desc,
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
-            (container) => {
-                container.innerHTML = `
-                    <div class="glass-panel" style="text-align: center;">
-                        <input type="file" id="${id}-file" accept="image/*" style="display: none;">
-                        <button id="${id}-upload" class="glass-btn" style="width: 100%; margin-bottom: 10px;">Upload Image</button>
-                        <canvas id="${id}-canvas" style="max-width: 100%; max-height: 300px; display: none; border: 1px solid rgba(255,255,255,0.2);"></canvas>
-                        <div id="${id}-controls" style="margin-top: 10px; display: none;">
-                            <button id="${id}-process" class="glass-btn-primary">${actionName}</button>
-                            <a id="${id}-download" class="glass-btn" style="margin-top: 5px; display: inline-flex; justify-content: center; text-decoration: none;">Download</a>
-                        </div>
-                    </div>
-                `;
-
-                const fileInput = document.getElementById(`${id}-file`);
-                const uploadBtn = document.getElementById(`${id}-upload`);
-                const canvas = document.getElementById(`${id}-canvas`);
-                const ctx = canvas.getContext('2d');
-                const controls = document.getElementById(`${id}-controls`);
-                const processBtn = document.getElementById(`${id}-process`);
-                const downloadLink = document.getElementById(`${id}-download`);
-
-                let img = new Image();
-
-                uploadBtn.addEventListener('click', () => fileInput.click());
-
-                fileInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if(file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            img.onload = () => {
-                                canvas.width = img.width;
-                                canvas.height = img.height;
-                                ctx.drawImage(img, 0, 0);
-                                canvas.style.display = 'block';
-                                controls.style.display = 'block';
-                            }
-                            img.src = event.target.result;
-                        }
-                        reader.readAsDataURL(file);
-                    }
-                });
-
-                processBtn.addEventListener('click', () => {
-                    processFn(ctx, canvas.width, canvas.height);
-                    downloadLink.href = canvas.toDataURL();
-                    downloadLink.download = `${id}-result.png`;
-                });
-            }
-        );
-    }
-
-    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert image to B&W.', 'Apply Grayscale', (ctx, w, h) => {
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = avg; // R
-            data[i + 1] = avg; // G
-            data[i + 2] = avg; // B
-        }
-        ctx.putImageData(imgData, 0, 0);
-    });
-
-    registerImageTool('img-invert', 'Invert Colors', 'Invert image colors.', 'Invert', (ctx, w, h) => {
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = 255 - data[i];     // R
-            data[i + 1] = 255 - data[i + 1]; // G
-            data[i + 2] = 255 - data[i + 2]; // B
-        }
-        ctx.putImageData(imgData, 0, 0);
-    });
-
-    // Misc
-    registerTool('qr-gen', 'QR Code Generator', 'Misc', 'Generate QR Code.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="text-align: center;">
-                    <input type="text" id="qr-input" class="glass-input" placeholder="Enter URL or Text">
-                    <button id="qr-btn" class="glass-btn-primary" style="margin: 10px 0;">Generate QR</button>
-                    <div id="qr-result" style="margin-top: 20px;"></div>
-                </div>
-            `;
-            document.getElementById('qr-btn').addEventListener('click', () => {
-                const text = document.getElementById('qr-input').value;
-                if(text) {
-                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
-                    document.getElementById('qr-result').innerHTML = `<img src="${url}" alt="QR Code" style="border-radius: 8px;">`;
-                }
-            });
-        }
-    );
-
-
-    registerTool('speed-test', 'Internet Speed', 'Misc', 'Download Speed Test.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M12 2v20"/><path d="M4.93 4.93l14.14 14.14"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="text-align: center;">
-                    <h3 id="st-status">Ready</h3>
-                    <div style="font-size: 3rem; font-weight: bold; margin: 20px 0;" id="st-val">0.0</div>
-                    <div style="color: rgba(255,255,255,0.7);">Mbps</div>
-                    <button id="st-btn" class="glass-btn-primary" style="margin-top: 20px;">Start Test</button>
-                </div>
-            `;
-            document.getElementById('st-btn').addEventListener('click', () => {
-                const val = document.getElementById('st-val');
-                const status = document.getElementById('st-status');
-                status.textContent = 'Testing...';
-                val.textContent = '0.0';
-
-                const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg";
-                const downloadSize = 5245329;
-                const startTime = (new Date()).getTime();
-                const cacheBuster = "?nnn=" + startTime;
-
-                const download = new Image();
-                download.onload = function () {
-                    const endTime = (new Date()).getTime();
-                    const duration = (endTime - startTime) / 1000;
-                    const bitsLoaded = downloadSize * 8;
-                    const speedBps = bitsLoaded / duration;
-                    const speedMbps = (speedBps / 1024 / 1024).toFixed(2);
-                    status.textContent = 'Done';
-                    val.textContent = speedMbps;
-                }
-                download.onerror = function (err, msg) {
-                    status.textContent = 'Error';
-                    val.textContent = '0.0';
-                }
-                download.src = imageAddr + cacheBuster;
-            });
-        }
-    );
-">Mbps</div>
-                    <button id="st-btn" class="glass-btn-primary" style="margin-top: 20px;">Start Test</button>
-                </div>
-            `;
-            document.getElementById('st-btn').addEventListener('click', () => {
-                const val = document.getElementById('st-val');
-                const status = document.getElementById('st-status');
-                status.textContent = 'Testing...';
-                let speed = 0;
-                let target = Math.random() * 100 + 50; // Mock target 50-150 Mbps
-                let interval = setInterval(() => {
-                    speed += (target - speed) * 0.1;
-                    val.textContent = speed.toFixed(1);
-                    if(Math.abs(target - speed) < 0.5) {
-                        clearInterval(interval);
-                        status.textContent = 'Done';
-                        val.textContent = target.toFixed(1);
-                    }
-                }, 100);
-            });
-        }
-    );
-
-    // Refresh
-    setRandomTheme();
-    renderDashboard();
-
-    // --- Batch 8: More Real Tools ---
-
-    registerTool('regex-real', 'Regex Tester', 'Dev', 'Test Regular Expressions.',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>',
-        (container) => {
-            container.innerHTML = `
-                <div class="glass-panel" style="max-width: 800px;">
-                    <div class="input-group">
-                        <label>Pattern (e.g. \\d+)</label>
-                        <input type="text" id="rx-pattern" class="glass-input" placeholder="\\w+">
-                    </div>
-                    <div class="input-group">
-                        <label>Flags (e.g. gi)</label>
-                        <input type="text" id="rx-flags" class="glass-input" placeholder="g">
-                    </div>
-                    <label>Test String</label>
-                    <textarea id="rx-text" class="glass-textarea" placeholder="Text to match..."></textarea>
-                    <button id="rx-btn" class="glass-btn-primary" style="margin-bottom: 10px;">Test Regex</button>
-                    <label>Matches</label>
-                    <div id="rx-result" class="glass-textarea" style="white-space: pre-wrap;"></div>
-                </div>
-            `;
-            document.getElementById('rx-btn').addEventListener('click', () => {
-                const pat = document.getElementById('rx-pattern').value;
-                const flags = document.getElementById('rx-flags').value;
-                const text = document.getElementById('rx-text').value;
-                const resDiv = document.getElementById('rx-result');
-
-                try {
-                    const regex = new RegExp(pat, flags);
-                    const matches = text.match(regex);
-                    if(matches) {
-                        resDiv.textContent = JSON.stringify(matches, null, 2);
-                        resDiv.style.color = 'white';
-                    } else {
-                        resDiv.textContent = 'No matches found.';
-                        resDiv.style.color = '#ffaaaa';
-                    }
-                } catch(e) {
-                    resDiv.textContent = 'Error: ' + e.message;
-                    resDiv.style.color = '#ff6b6b';
-                }
-            });
-        }
-    );
-
-    createMathTool('prime-factor', 'Prime Factorization', 'Math', 'Find prime factors.', [{key:'n', label:'Number'}], (v) => {
-        let n = parseInt(v.n);
-        const factors = [];
-        let d = 2;
-        while (d * d <= n) {
-            while (n % d === 0) {
-                factors.push(d);
-                n = Math.floor(n / d);
-            }
-            d++;
-        }
-        if (n > 1) factors.push(n);
-        return factors.join(' × ');
-    });
-
-    createSimpleTextTool('list-random', 'Randomize List', 'Text', 'Shuffle list items.', (text) => text.split('\n').sort(() => 0.5 - Math.random()).join('\n'));
-    createSimpleTextTool('list-sort', 'Sort List (Numeric)', 'Text', 'Sort numbers.', (text) => text.split('\n').sort((a,b) => parseFloat(a)-parseFloat(b)).join('\n'));
-    createSimpleTextTool('json-minify', 'JSON Minifier', 'Dev', 'Remove whitespace from JSON.', (text) => JSON.stringify(JSON.parse(text)));
-
-    if (countBadge) {
-        const newCount = Object.keys(toolRegistry).length;
-        countBadge.textContent = `${newCount} Tools`;
-        document.getElementById('search-input').placeholder = `Search ${newCount} tools...`;
-    }
 
 });

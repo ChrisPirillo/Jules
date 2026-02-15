@@ -89,6 +89,66 @@
     }
 }
 
+
+/* --- Enhancements --- */
+
+/* Scroll Diffusion */
+#content-area {
+    /* Mask to fade out content at the top as it scrolls */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 30px, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30px, black 100%);
+    padding-top: 10px; /* Space for the fade */
+}
+
+/* One-Line Categories (Desktop) */
+@media (min-width: 768px) {
+    .category-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: hidden !important; /* No scroll */
+        justify-content: space-between;
+        gap: 5px;
+        padding: 0 10px 10px 10px;
+    }
+    .category-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px !important; /* Reduced padding */
+        font-size: 0.8rem !important; /* Reduced font */
+        min-width: 0; /* Allow shrinking below content size */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Themed Components */
+.glass-btn-primary {
+    background: var(--theme-accent, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: var(--theme-text, white) !important;
+}
+
+.glass-input, .glass-select, .glass-textarea {
+    background: var(--theme-bg-input, rgba(0,0,0,0.4)) !important;
+    border-color: var(--theme-border, rgba(255,255,255,0.3)) !important;
+}
+
+.glass-btn:hover {
+    background: var(--theme-accent-hover, rgba(255,255,255,0.35)) !important;
+}
+
+/* Tool Card Theme Support */
+.tool-card {
+    border-color: var(--theme-border, rgba(255,255,255,0.2)) !important;
+}
+.tool-card:hover {
+    background: var(--theme-bg-hover, rgba(255,255,255,0.35)) !important;
+    border-color: var(--theme-accent, white) !important;
+}
+.tool-card .icon {
+    color: var(--theme-accent, #4f46e5) !important;
+}
+
 </style>
 <style>
 :root {
@@ -630,6 +690,66 @@ body {
     }
 }
 
+
+/* --- Enhancements --- */
+
+/* Scroll Diffusion */
+#content-area {
+    /* Mask to fade out content at the top as it scrolls */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 30px, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30px, black 100%);
+    padding-top: 10px; /* Space for the fade */
+}
+
+/* One-Line Categories (Desktop) */
+@media (min-width: 768px) {
+    .category-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: hidden !important; /* No scroll */
+        justify-content: space-between;
+        gap: 5px;
+        padding: 0 10px 10px 10px;
+    }
+    .category-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px !important; /* Reduced padding */
+        font-size: 0.8rem !important; /* Reduced font */
+        min-width: 0; /* Allow shrinking below content size */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Themed Components */
+.glass-btn-primary {
+    background: var(--theme-accent, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: var(--theme-text, white) !important;
+}
+
+.glass-input, .glass-select, .glass-textarea {
+    background: var(--theme-bg-input, rgba(0,0,0,0.4)) !important;
+    border-color: var(--theme-border, rgba(255,255,255,0.3)) !important;
+}
+
+.glass-btn:hover {
+    background: var(--theme-accent-hover, rgba(255,255,255,0.35)) !important;
+}
+
+/* Tool Card Theme Support */
+.tool-card {
+    border-color: var(--theme-border, rgba(255,255,255,0.2)) !important;
+}
+.tool-card:hover {
+    background: var(--theme-bg-hover, rgba(255,255,255,0.35)) !important;
+    border-color: var(--theme-accent, white) !important;
+}
+.tool-card .icon {
+    color: var(--theme-accent, #4f46e5) !important;
+}
+
 </style>
 </head>
 <body>
@@ -730,16 +850,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryTabs = document.getElementById('category-tabs');
 
     // --- Random Theming ---
-    function setRandomTheme() {
+        function setRandomTheme() {
         const hue = Math.floor(Math.random() * 360);
+        // Darker Theme: Saturation 60-80%, Lightness 10-30%
         const sat = Math.floor(Math.random() * 20) + 60;
-        const light = Math.floor(Math.random() * 20) + 40;
+        const light = Math.floor(Math.random() * 20) + 10;
+
         const primaryColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        const accentColor = `hsl(${hue}, ${sat}%, ${light + 40}%)`; // Brighter accent
+        const bgInput = `hsla(${hue}, 30%, 10%, 0.6)`;
+        const border = `hsla(${hue}, 50%, 50%, 0.3)`;
+
         const root = document.documentElement;
         root.style.setProperty('--primary-color', primaryColor);
+
+        // Gradient: Dark to slightly lighter dark
         const hue2 = (hue + 40) % 360;
-        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 70%, 60%) 0%, hsl(${hue2}, 70%, 40%) 100%)`;
+        const bgGradient = `linear-gradient(135deg, hsl(${hue}, 60%, 20%) 0%, hsl(${hue2}, 60%, 10%) 100%)`;
         root.style.setProperty('--bg-gradient', bgGradient);
+
+        // Component Vars
+        root.style.setProperty('--theme-accent', accentColor);
+        root.style.setProperty('--theme-accent-hover', `hsl(${hue}, ${sat}%, ${light + 50}%)`);
+        root.style.setProperty('--theme-bg-input', bgInput);
+        root.style.setProperty('--theme-border', border);
+        root.style.setProperty('--theme-bg-hover', `hsla(${hue}, ${sat}%, 25%, 0.4)`);
+
+        // Force redraw/recalc if needed (usually auto)
     }
 
     const toolRegistry = {};
@@ -1162,6 +1299,181 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setRandomTheme();
+
+    // --- Batch 9: More Real Tools ---
+    createMathTool('gcd-lcm', 'GCD & LCM', 'Math', 'Greatest Common Divisor.', [{key:'a', label:'Number A'}, {key:'b', label:'Number B'}], (v) => {
+        const gcd = (a, b) => !b ? a : gcd(b, a % b);
+        const lcm = (a, b) => (a * b) / gcd(a, b);
+        const g = gcd(v.a, v.b);
+        const l = lcm(v.a, v.b);
+        return 'GCD: ' + g + ' | LCM: ' + l;
+    });
+
+    createMathTool('pct-diff', 'Percentage Difference', 'Math', 'Diff between two values.', [{key:'v1', label:'Value 1'}, {key:'v2', label:'Value 2'}], (v) => {
+        const avg = (v.v1 + v.v2) / 2;
+        return (Math.abs(v.v1 - v.v2) / avg * 100).toFixed(2) + '%';
+    });
+
+    createSimpleTextTool('text-diff', 'Text Diff (Lines)', 'Text', 'Show added/removed lines.', (text) => {
+        const parts = text.split('\n---\n');
+        if(parts.length < 2) return "Enter two text blocks separated by a line containing only '---'";
+        const lines1 = parts[0].split('\n');
+        const lines2 = parts[1].split('\n');
+        const added = lines2.filter(x => !lines1.includes(x));
+        const removed = lines1.filter(x => !lines2.includes(x));
+        return 'Added:\n' + added.join('\n') + '\n\nRemoved:\n' + removed.join('\n');
+    });
+
+    createSimpleTextTool('remove-dup-lines', 'Remove Duplicates', 'Text', 'Unique lines only.', (text) => [...new Set(text.split('\n'))].join('\n'));
+
+    createSimpleTextTool('url-parser', 'URL Parser', 'Dev', 'Parse URL parts.', (text) => {
+        try {
+            const u = new URL(text);
+            return JSON.stringify({ protocol: u.protocol, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash }, null, 2);
+        } catch(e) { return "Invalid URL"; }
+    });
+
+    createSimpleTextTool('curl-gen', 'Curl Generator', 'Dev', 'GET request curl.', (text) => 'curl -X GET "' + text + '"');
+
+    registerTool('contrast-check', 'Contrast Checker', 'Color', 'Check text contrast.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label>Foreground (Hex)</label>
+                        <input type="color" id="cc-fg" class="glass-input" value="#ffffff" style="height:50px;">
+                    </div>
+                    <div class="input-group">
+                        <label>Background (Hex)</label>
+                        <input type="color" id="cc-bg" class="glass-input" value="#000000" style="height:50px;">
+                    </div>
+                    <div id="cc-preview" style="padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
+                        Preview Text
+                    </div>
+                    <div id="cc-result" style="text-align: center; font-weight: bold; font-size: 1.2rem;">Ratio: 21.00 (AAA)</div>
+                </div>
+            `;
+
+            function getLum(hex) {
+                const r = parseInt(hex.substr(1,2),16)/255;
+                const g = parseInt(hex.substr(3,2),16)/255;
+                const b = parseInt(hex.substr(5,2),16)/255;
+                const a = [r,g,b].map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+                return a[0]*0.2126 + a[1]*0.7152 + a[2]*0.0722;
+            }
+
+            function check() {
+                const fg = document.getElementById('cc-fg').value;
+                const bg = document.getElementById('cc-bg').value;
+                document.getElementById('cc-preview').style.color = fg;
+                document.getElementById('cc-preview').style.backgroundColor = bg;
+
+                const l1 = getLum(fg);
+                const l2 = getLum(bg);
+                const ratio = (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
+
+                let rating = '';
+                if(ratio >= 7) rating = '(AAA)';
+                else if(ratio >= 4.5) rating = '(AA)';
+                else rating = '(Fail)';
+
+                document.getElementById('cc-result').textContent = 'Ratio: ' + ratio.toFixed(2) + ' ' + rating;
+            }
+
+            document.getElementById('cc-fg').addEventListener('input', check);
+            document.getElementById('cc-bg').addEventListener('input', check);
+            check();
+        }
+    );
+
+
+    // --- Batch 7: High Volume Tools (Re-added) ---
+    createMathTool('mortgage-calc', 'Mortgage Calculator', 'Finance', 'Monthly payment.', [{key:'p', label:'Loan'}, {key:'r', label:'Rate %'}, {key:'y', label:'Years'}], (v) => { const r = v.r/1200; const n = v.y*12; return (v.p * r * Math.pow(1+r,n)/(Math.pow(1+r,n)-1)).toFixed(2); });
+    createMathTool('roi-calc', 'ROI Calculator', 'Finance', 'Return on Investment.', [{key:'inv', label:'Investment'}, {key:'ret', label:'Return'}], (v) => (((v.ret-v.inv)/v.inv)*100).toFixed(2)+'%');
+    createSimpleTextTool('xml-format', 'XML Formatter', 'Dev', 'Indent XML.', (text) => text.replace(/>\s*</g, '>\n<'));
+
+    // Image Tools (Canvas)
+    function registerImageTool(id, name, desc, actionName, processFn) {
+        registerTool(id, name, 'Image', desc,
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+            (container) => {
+                container.innerHTML = `
+                    <div class="glass-panel" style="text-align: center;">
+                        <input type="file" id="${id}-file" accept="image/*" style="display: none;">
+                        <button id="${id}-upload" class="glass-btn" style="width: 100%; margin-bottom: 10px;">Upload Image</button>
+                        <canvas id="${id}-canvas" style="max-width: 100%; max-height: 300px; display: none; border: 1px solid rgba(255,255,255,0.2);"></canvas>
+                        <div id="${id}-controls" style="margin-top: 10px; display: none;">
+                            <button id="${id}-process" class="glass-btn-primary">${actionName}</button>
+                            <a id="${id}-download" class="glass-btn" style="margin-top: 5px; display: inline-flex; justify-content: center; text-decoration: none;">Download</a>
+                        </div>
+                    </div>
+                `;
+                const fileInput = document.getElementById(`${id}-file`);
+                const uploadBtn = document.getElementById(`${id}-upload`);
+                const canvas = document.getElementById(`${id}-canvas`);
+                const ctx = canvas.getContext('2d');
+                const controls = document.getElementById(`${id}-controls`);
+                const processBtn = document.getElementById(`${id}-process`);
+                const downloadLink = document.getElementById(`${id}-download`);
+                let img = new Image();
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            img.onload = () => {
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                ctx.drawImage(img, 0, 0);
+                                canvas.style.display = 'block';
+                                controls.style.display = 'block';
+                            }
+                            img.src = event.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+                processBtn.addEventListener('click', () => {
+                    processFn(ctx, canvas.width, canvas.height);
+                    downloadLink.href = canvas.toDataURL();
+                    downloadLink.download = `${id}-result.png`;
+                });
+            }
+        );
+    }
+
+    registerImageTool('img-grayscale', 'Grayscale Filter', 'Convert to B&W.', 'Apply Grayscale', (ctx, w, h) => {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
+        }
+        ctx.putImageData(imgData, 0, 0);
+    });
+
+    registerTool('qr-gen', 'QR Code Generator', 'Misc', 'Generate QR Code.',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+        (container) => {
+            container.innerHTML = `
+                <div class="glass-panel" style="text-align: center;">
+                    <input type="text" id="qr-input" class="glass-input" placeholder="Enter URL or Text">
+                    <button id="qr-btn" class="glass-btn-primary" style="margin: 10px 0;">Generate QR</button>
+                    <div id="qr-result" style="margin-top: 20px;"></div>
+                </div>
+            `;
+            document.getElementById('qr-btn').addEventListener('click', () => {
+                const text = document.getElementById('qr-input').value;
+                if(text) {
+                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+                    document.getElementById('qr-result').innerHTML = `<img src="${url}" alt="QR Code" style="border-radius: 8px;">`;
+                }
+            });
+        }
+    );
+
     renderDashboard();
 
     window.addEventListener('hashchange', handleRouting);
