@@ -8,24 +8,17 @@ def run():
         page.wait_for_selector(".tool-card")
 
         # 1. Screenshot Dashboard
-        page.screenshot(path="verification/dashboard_final_v2.png")
+        page.screenshot(path="verification/dashboard_final_280.png")
+        print("Dashboard screenshot saved.")
 
-        # 2. Open Tool (Regex)
-        page.click(".tool-card[data-tool='regex-real']")
-        page.wait_for_selector("#rx-pattern")
+        # 2. Open Tool
+        page.click(".tool-card[data-tool='mortgage-calc']")
+        page.wait_for_selector("#mortgage-calc-p")
 
-        # 3. Check Nav Alignment
-        # Screenshot tool view top part
-        page.screenshot(path="verification/tool_nav_align.png", clip={"x":0,"y":0,"width":1000,"height":150})
-
-        # 4. Check Logo Link (again)
-        page.click("h1")
-        # Wait for dashboard
-        try:
-            page.wait_for_selector("#dashboard", state="visible", timeout=2000)
-            print("PASS: Logo link returned to dashboard.")
-        except:
-            print("FAIL: Logo link did not return to dashboard.")
+        # 3. Check Header Alignment (Visual)
+        # Screenshot Top Area
+        page.screenshot(path="verification/tool_header_align.png", clip={"x":0,"y":0,"width":1000,"height":100})
+        print("Header alignment screenshot saved.")
 
         browser.close()
 
