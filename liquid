@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Silent Liquidity</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+*{box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;margin:0;padding:0;overflow:hidden;background:#000;user-select:none;-webkit-user-select:none}
+#liquid-canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+/* Panel: desktop right drawer */
+.glass-panel{background:rgba(255,255,255,0.32);backdrop-filter:blur(48px) saturate(220%) brightness(1.02);-webkit-backdrop-filter:blur(48px) saturate(220%) brightness(1.02)}
+#panel{position:fixed;top:0;right:0;height:100%;width:100%;max-width:360px;z-index:50;display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.28);box-shadow:-18px 0 50px rgba(0,0,0,0.18);transform:translateX(110%);transition:transform 0.5s cubic-bezier(0.16,1,0.3,1)}
+#panel.open{transform:translateX(0)}
+
+/* Panel: mobile bottom sheet */
+@media(max-width:639px){
+  #panel{top:auto;bottom:0;right:0;left:0;height:68vh;width:100%;max-width:100%;border-left:none;border-top:1px solid rgba(255,255,255,0.28);box-shadow:0 -18px 50px rgba(0,0,0,0.18);border-radius:22px 22px 0 0;transform:translateY(110%)}
+  #panel.open{transform:translateY(0)}
+  #menu-toggle{top:unset;bottom:calc(68vh + 10px);right:14px}
+}
+
+.fo{pointer-events:none;background:#000;opacity:0;transition:opacity 0.4s ease-in-out;z-index:40}
+.fo.active{opacity:1;pointer-events:auto}
+#liquid-canvas.blocked{pointer-events:none}
+
+/* Accordion */
+.acc-wrap{border:1px solid rgba(255,255,255,0.18);border-radius:13px;margin-bottom:7px;overflow:hidden}
+.acc-hd{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:9px 12px;transition:background 0.12s}
+.acc-hd:hover{background:rgba(255,255,255,0.15)}
+.acc-hd.open{background:rgba(255,255,255,0.1);border-radius:13px 13px 0 0}
+.acc-body{display:none;padding:9px 12px 12px;background:rgba(255,255,255,0.06);border-radius:0 0 13px 13px;border-top:1px solid rgba(255,255,255,0.1)}
+.acc-body.open{display:block}
+.acc-arr{transition:transform 0.22s;flex-shrink:0}
+.acc-hd.open .acc-arr{transform:rotate(180deg)}
+
+/* Slider row: label | track | value — all on one line, no collision */
+.sr{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sr:last-child{margin-bottom:0}
+.sr .sl{font-size:8px;font-weight:800;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;flex-shrink:0;width:80px}
+.sr input[type="range"]{flex:1;min-width:0}
+.sr .vb{flex-shrink:0;width:36px;text-align:right}
+
+/* Checkbox row */
+.cr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.cr:last-child{margin-bottom:0}
+/* Color/text row */
+.xr{margin-bottom:9px}
+.xr:last-child{margin-bottom:0}
+
+input[type="range"]{-webkit-appearance:none;width:100%;height:4px;background:rgba(0,0,0,0.13);border-radius:10px;outline:none;cursor:pointer}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#000;border-radius:50%;cursor:pointer;border:2.5px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+
+.cs::-webkit-scrollbar{width:4px}
+.cs::-webkit-scrollbar-track{background:transparent}
+.cs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:10px}
+
+#info-modal{display:none;backdrop-filter:blur(20px) brightness(1.1)}
+#info-modal.active{display:flex}
+.gc{background:rgba(255,255,255,0.72);backdrop-filter:blur(40px) saturate(200%);border:1px solid rgba(255,255,255,0.5);box-shadow:0 30px 60px -12px rgba(0,0,0,0.15)}
+.btn-g{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);transition:all 0.14s}
+.btn-g:hover{background:rgba(255,255,255,0.24)}
+.lbl{font-size:8.5px;font-weight:800;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.09em}
+.sec{font-size:8.5px;font-weight:900;color:rgba(0,0,0,0.52);text-transform:uppercase;letter-spacing:0.17em}
+.vb{font-size:8.5px;font-weight:900;color:#000;background:rgba(255,255,255,0.86);padding:1px 5px;border-radius:4px;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<canvas id="liquid-canvas"></canvas>
+<div id="fo" class="fo fixed inset-0"></div>
+
+<button id="menu-toggle" class="fixed top-6 right-6 z-50 p-3 bg-white/30 backdrop-blur-xl rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/30">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+</button>
+
+<aside id="panel" class="glass-panel">
+  <header class="px-5 py-4 flex items-center justify-between border-b border-black/5 shrink-0">
+    <div class="flex items-center gap-2.5">
+      <h2 class="text-[15px] font-black text-black tracking-tighter uppercase">Silent Liquidity</h2>
+      <button id="info-trigger" class="text-black/25 hover:text-black transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+      </button>
+    </div>
+    <button id="menu-close" class="p-1.5 hover:bg-black/5 rounded-lg transition-all active:scale-90">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </header>
+
+  <div class="flex-1 overflow-y-auto cs px-3 py-3">
+
+    <!-- CANVAS -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="canvas">
+        <span class="sec">Canvas</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-canvas">
+        <div class="xr"><p class="lbl mb-1">Display Text</p><input type="text" id="i-text" class="w-full bg-white/30 p-2 border border-white/50 rounded-xl outline-none font-black text-sm tracking-tight" value="Liquid,Effect"></div>
+        <div class="xr"><p class="lbl mb-1">Text Color</p><input type="color" id="i-textColor" class="w-full h-8 rounded-lg border-none bg-white/20 p-1 cursor-pointer" value="#1d1d1f"></div>
+        <div class="cr"><span class="lbl">Gradient</span><input type="checkbox" id="i-gradientEnabled" checked class="w-4 h-4 accent-black cursor-pointer"></div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div><p class="lbl mb-1">Color A</p><input type="color" id="i-backgroundColor" class="w-full h-8 rounded-lg border-none bg-white/20 p-1 cursor-pointer" value="#fafafa"></div>
+          <div id="gc-b"><p class="lbl mb-1">Color B</p><input type="color" id="i-backgroundColor2" class="w-full h-8 rounded-lg border-none bg-white/20 p-1 cursor-pointer" value="#cbd5e1"></div>
+        </div>
+        <div id="gc-angle" class="sr"><span class="sl">Angle</span><input type="range" id="i-gradientAngle" min="0" max="360" step="1" value="135"><span id="v-gradientAngle" class="vb">135°</span></div>
+        <div class="cr"><span class="lbl">Rain</span><input type="checkbox" id="i-rain" class="w-4 h-4 accent-black cursor-pointer"></div>
+      </div>
+    </div>
+
+    <!-- WAVE PHYSICS -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="wave">
+        <span class="sec">Wave Physics</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-wave">
+        <div class="sr"><span class="sl">Depth</span><input type="range" id="i-displacementScale" min="0" max="80" step="0.5" value="2"><span id="v-displacementScale" class="vb">2.00</span></div>
+        <div class="sr"><span class="sl">Complexity</span><input type="range" id="i-viscosity" min="0.01" max="12" step="0.05" value="0.5"><span id="v-viscosity" class="vb">0.50</span></div>
+        <div class="sr"><span class="sl">Flow Speed</span><input type="range" id="i-speed" min="0" max="20" step="0.1" value="1"><span id="v-speed" class="vb">1.00</span></div>
+      </div>
+    </div>
+
+    <!-- OPTICS -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="optics">
+        <span class="sec">Optics</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-optics">
+        <div class="sr"><span class="sl">Refraction</span><input type="range" id="i-refraction" min="0" max="15" step="0.05" value="0.5"><span id="v-refraction" class="vb">0.50</span></div>
+        <div class="sr"><span class="sl">Aberration</span><input type="range" id="i-chromaticAberration" min="0" max="1.5" step="0.005" value="0.05"><span id="v-chromaticAberration" class="vb">0.05</span></div>
+        <div class="sr"><span class="sl">Fresnel</span><input type="range" id="i-fresnelPower" min="0.1" max="20" step="0.1" value="2"><span id="v-fresnelPower" class="vb">2.00</span></div>
+        <div class="sr"><span class="sl">IOR</span><input type="range" id="i-ior" min="1.0" max="2.5" step="0.01" value="1.33"><span id="v-ior" class="vb">1.33</span></div>
+        <div class="sr"><span class="sl">Transmission</span><input type="range" id="i-transmission" min="0" max="1" step="0.01" value="0"><span id="v-transmission" class="vb">0.00</span></div>
+        <div class="sr"><span class="sl">Thickness</span><input type="range" id="i-thickness" min="0.01" max="10" step="0.1" value="2"><span id="v-thickness" class="vb">2.00</span></div>
+      </div>
+    </div>
+
+    <!-- SURFACE -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="surface">
+        <span class="sec">Surface</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-surface">
+        <div class="sr"><span class="sl">Metalness</span><input type="range" id="i-metalness" min="0" max="1" step="0.01" value="0.35"><span id="v-metalness" class="vb">0.35</span></div>
+        <div class="sr"><span class="sl">Roughness</span><input type="range" id="i-roughness" min="0" max="1" step="0.01" value="0.45"><span id="v-roughness" class="vb">0.45</span></div>
+        <div class="sr"><span class="sl">Clearcoat</span><input type="range" id="i-clearcoat" min="0" max="1" step="0.01" value="0"><span id="v-clearcoat" class="vb">0.00</span></div>
+        <div class="sr"><span class="sl">Coat Rough</span><input type="range" id="i-clearcoatRoughness" min="0" max="1" step="0.01" value="0"><span id="v-clearcoatRoughness" class="vb">0.00</span></div>
+        <div class="sr"><span class="sl">Sheen</span><input type="range" id="i-sheen" min="0" max="1" step="0.01" value="0"><span id="v-sheen" class="vb">0.00</span></div>
+        <div class="sr"><span class="sl">Sheen Rough</span><input type="range" id="i-sheenRoughness" min="0" max="1" step="0.01" value="0.5"><span id="v-sheenRoughness" class="vb">0.50</span></div>
+      </div>
+    </div>
+
+    <!-- IRIDESCENCE -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="irid">
+        <span class="sec">Iridescence</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-irid">
+        <div class="sr"><span class="sl">Intensity</span><input type="range" id="i-iridescence" min="0" max="1" step="0.01" value="0"><span id="v-iridescence" class="vb">0.00</span></div>
+        <div class="sr"><span class="sl">IOR</span><input type="range" id="i-iridescenceIOR" min="1.0" max="2.5" step="0.01" value="1.3"><span id="v-iridescenceIOR" class="vb">1.30</span></div>
+        <div class="sr"><span class="sl">Thick Min</span><input type="range" id="i-iridescenceThicknessMin" min="0" max="1000" step="10" value="100"><span id="v-iridescenceThicknessMin" class="vb">100</span></div>
+        <div class="sr"><span class="sl">Thick Max</span><input type="range" id="i-iridescenceThicknessMax" min="0" max="1000" step="10" value="400"><span id="v-iridescenceThicknessMax" class="vb">400</span></div>
+      </div>
+    </div>
+
+    <!-- LIGHTING -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="light">
+        <span class="sec">Lighting</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-light">
+        <div class="sr"><span class="sl">Env Map</span><input type="range" id="i-envMapIntensity" min="0.5" max="1.0" step="0.02" value="1"><span id="v-envMapIntensity" class="vb">1.00</span></div>
+        <div class="sr"><span class="sl">Specular</span><input type="range" id="i-specularIntensity" min="0" max="2" step="0.01" value="1"><span id="v-specularIntensity" class="vb">1.00</span></div>
+        <div class="sr"><span class="sl">Emissive</span><input type="range" id="i-emissiveIntensity" min="0" max="0.25" step="0.01" value="0"><span id="v-emissiveIntensity" class="vb">0.00</span></div>
+        <div class="xr"><p class="lbl mb-1">Emissive Color</p><input type="color" id="i-emissiveColor" class="w-full h-8 rounded-lg border-none bg-white/20 p-1 cursor-pointer" value="#000000"></div>
+        <div id="scene-lights-ui"></div>
+      </div>
+    </div>
+
+    <!-- AUTO FLOW -->
+    <div class="acc-wrap">
+      <div class="acc-hd open" data-acc="flow">
+        <span class="sec">Auto Flow</span>
+        <svg class="acc-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="acc-body open" id="acc-flow">
+        <div class="cr"><span class="lbl">Auto Cycle</span><input type="checkbox" id="i-autoAdvance" class="w-4 h-4 accent-black cursor-pointer"></div>
+        <div id="ic" class="opacity-50 pointer-events-none">
+          <div class="sr"><span class="sl">Interval (s)</span><input type="range" id="i-interval" min="3" max="60" step="1" value="10"><span id="v-interval" class="vb">10</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="grid grid-cols-2 gap-2 mt-2 mb-2">
+      <button id="btn-import" class="btn-g px-3 py-3 rounded-xl lbl active:scale-95">Import</button>
+      <button id="btn-export" class="btn-g px-3 py-3 rounded-xl lbl active:scale-95">Export</button>
+      <input type="file" id="file-in" class="hidden" accept=".json">
+    </div>
+    <button id="btn-snap" class="w-full px-4 py-3.5 bg-black text-white rounded-2xl hover:shadow-xl active:scale-95 mb-3" style="font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.18em;color:white">Capture Snapshot</button>
+  </div>
+
+  <footer class="px-3 py-3 border-t border-black/5 bg-white/5 grid grid-cols-2 gap-3 shrink-0">
+    <button id="btn-reset" class="px-3 py-3 bg-white/20 border border-white/30 rounded-xl lbl hover:bg-white/35 active:scale-95">Default</button>
+    <button id="btn-randomize" class="px-3 py-3 bg-black text-white rounded-xl lbl hover:shadow-xl active:scale-95" style="color:white">Random</button>
+  </footer>
+</aside>
+
+<div id="info-modal" class="fixed inset-0 z-[60] p-6 items-center justify-center bg-white/20">
+  <div class="gc w-full max-w-md p-10 rounded-[44px] shadow-2xl relative text-center">
+    <button id="modal-close" class="absolute top-6 right-6 p-2 hover:bg-black/5 rounded-full">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <h2 class="text-3xl font-black mb-3 tracking-tighter uppercase">Silent Liquidity</h2>
+    <p class="text-black/45 mb-7 font-bold text-sm italic">Physically-simulated fluid distortion.</p>
+    <p class="lbl mb-7" style="text-decoration:underline;text-underline-offset:8px">Core by <a href="https://gist.github.com/StarKnightt/a8d5c7cb87424e80555bc847cece79b0" target="_blank" class="text-black hover:text-blue-600">StarKnightt</a></p>
+    <div class="space-y-3">
+      <a href="https://arcade.pirillo.com/" target="_blank" class="flex items-center justify-between p-5 rounded-3xl bg-black/5 hover:bg-black/10 lbl"><span>More Apps</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="https://chris.pirillo.com/" target="_blank" class="flex items-center justify-between p-5 rounded-3xl bg-black/5 hover:bg-black/10 lbl"><span>Follow Chris Pirillo</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="https://patreon.com/ChrisPirillo" target="_blank" class="flex items-center justify-between p-5 rounded-3xl bg-black/5 hover:bg-black/10 lbl"><span>Support Patreon</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="https://www.paypal.com/donate/?hosted_button_id=UMWCDWGVXVHZU" target="_blank" class="flex items-center justify-center gap-2 p-5 bg-blue-600 text-white rounded-[28px] lbl shadow-lg active:scale-95 hover:bg-blue-700" style="color:white">Donate Here</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Force preserveDrawingBuffer on the liquid canvas BEFORE the library
+//    calls getContext. Three.js passes its own context options, so we
+//    intercept and inject preserveDrawingBuffer:true.
+(function(){
+  const canvas = document.getElementById('liquid-canvas');
+  const origGetContext = canvas.getContext.bind(canvas);
+  canvas.getContext = function(type, opts) {
+    if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
+      opts = Object.assign({}, opts || {}, { preserveDrawingBuffer: true });
+    }
+    return origGetContext(type, opts);
+  };
+})();
+
+// ── Suppress the THREE.Texture serialize warning — it's harmless noise
+//    from Three.js trying to JSON-serialize a render target texture.
+(function(){
+  const _warn = console.warn.bind(console);
+  console.warn = function(...args) {
+    const msg = args[0];
+    if (typeof msg === 'string' && msg.includes('Unable to serialize Texture')) return;
+    _warn(...args);
+  };
+})();
+</script>
+
+<script type="module">
+import LiquidBackground from 'https://cdn.jsdelivr.net/npm/threejs-components@0.0.30/build/backgrounds/liquid1.min.js';
+
+// ─────────────────────────────────────────────────────────
+//  DEFAULTS
+// ─────────────────────────────────────────────────────────
+const DEFAULTS = {
+  text:["Liquid","Effect"], backgroundColor:"#fafafa", backgroundColor2:"#cbd5e1",
+  gradientEnabled:true, gradientAngle:135, textColor:"#1d1d1f",
+  displacementScale:2.0, viscosity:0.5, speed:1.0,
+  refraction:0.5, chromaticAberration:0.05, fresnelPower:2.0,
+  metalness:0.35, roughness:0.45, thickness:2.0, ior:1.33, transmission:0.0,
+  clearcoat:0.0, clearcoatRoughness:0.0, sheen:0.0, sheenRoughness:0.5,
+  iridescence:0.0, iridescenceIOR:1.3, iridescenceThicknessMin:100, iridescenceThicknessMax:400,
+  specularIntensity:1.0, emissiveIntensity:0.0, emissiveColor:"#000000",
+  envMapIntensity:1.0,
+  sceneLightIntensity:1.0, sceneLightX:0, sceneLightY:5, sceneLightZ:5,
+  rain:false, autoAdvance:false, interval:10
+};
+let state={...DEFAULTS}, app=null, isRand=false, autoTimer=null, sceneLights=[];
+
+const canvas  = document.getElementById('liquid-canvas');
+const fadeEl  = document.getElementById('fo');
+const panelEl = document.getElementById('panel');
+
+const getMat  = () => app?.liquidPlane?.material ?? null;
+const getUnis = () => app?.liquidPlane?.uniforms  ?? null;
+
+// ─────────────────────────────────────────────────────────
+//  PANEL OPEN / CLOSE — blocks canvas pointer events
+// ─────────────────────────────────────────────────────────
+function openPanel()  { panelEl.classList.add('open');    canvas.classList.add('blocked'); }
+function closePanel() { panelEl.classList.remove('open'); canvas.classList.remove('blocked'); }
+const isPanelOpen = () => panelEl.classList.contains('open');
+
+// ─────────────────────────────────────────────────────────
+//  SCENE LIGHT DISCOVERY + DYNAMIC UI
+// ─────────────────────────────────────────────────────────
+function discover() {
+  if (!app) return;
+  sceneLights = [];
+  app.scene?.traverse(o => { if (o.isLight) sceneLights.push(o); });
+  buildLightUI();
+}
+
+function buildLightUI() {
+  const c = document.getElementById('scene-lights-ui');
+  c.innerHTML = '';
+  if (!sceneLights.length) return;
+
+  c.insertAdjacentHTML('beforeend', `
+    <div style="border-top:1px solid rgba(0,0,0,0.08);margin:7px 0 5px"></div>
+    <p class="lbl" style="color:rgba(0,0,0,0.25);margin-bottom:6px">Scene Lights (${sceneLights.length})</p>
+    <div class="sr"><span class="sl">Intensity</span><input type="range" id="i-sceneLightIntensity" min="0" max="5" step="0.05" value="${state.sceneLightIntensity}"><span id="v-sceneLightIntensity" class="vb">${state.sceneLightIntensity.toFixed(2)}</span></div>
+  `);
+  const hasPos = sceneLights.some(l => l.position);
+  if (hasPos) c.insertAdjacentHTML('beforeend', `
+    <div class="sr"><span class="sl">Light X</span><input type="range" id="i-sceneLightX" min="-20" max="20" step="0.5" value="${state.sceneLightX}"><span id="v-sceneLightX" class="vb">${state.sceneLightX.toFixed(1)}</span></div>
+    <div class="sr"><span class="sl">Light Y</span><input type="range" id="i-sceneLightY" min="-20" max="20" step="0.5" value="${state.sceneLightY}"><span id="v-sceneLightY" class="vb">${state.sceneLightY.toFixed(1)}</span></div>
+    <div class="sr"><span class="sl">Light Z</span><input type="range" id="i-sceneLightZ" min="-20" max="20" step="0.5" value="${state.sceneLightZ}"><span id="v-sceneLightZ" class="vb">${state.sceneLightZ.toFixed(1)}</span></div>
+  `);
+
+  const bl = (id, key, dec) => {
+    const el=document.getElementById(id), vl=document.getElementById('v-'+key); if(!el)return;
+    el.addEventListener('input',e=>{ state[key]=parseFloat(e.target.value); if(vl)vl.textContent=state[key].toFixed(dec); applySceneLights(); });
+  };
+  bl('i-sceneLightIntensity','sceneLightIntensity',2);
+  if (hasPos) { bl('i-sceneLightX','sceneLightX',1); bl('i-sceneLightY','sceneLightY',1); bl('i-sceneLightZ','sceneLightZ',1); }
+}
+
+function applySceneLights() {
+  sceneLights.forEach(l => {
+    l.intensity = state.sceneLightIntensity;
+    if (l.position) l.position.set(state.sceneLightX, state.sceneLightY, state.sceneLightZ);
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+//  APPLY UNIFORMS
+// ─────────────────────────────────────────────────────────
+function applyUniforms() {
+  if (!app) return;
+  const mat=getMat(), unis=getUnis();
+  if (mat) {
+    const s=(k,v)=>{ if(k in mat)mat[k]=v; };
+    s('metalness',state.metalness); s('roughness',state.roughness);
+    s('thickness',state.thickness); s('ior',state.ior); s('transmission',state.transmission);
+    s('clearcoat',state.clearcoat); s('clearcoatRoughness',state.clearcoatRoughness);
+    s('sheen',state.sheen); s('sheenRoughness',state.sheenRoughness);
+    s('iridescence',state.iridescence); s('iridescenceIOR',state.iridescenceIOR);
+    s('specularIntensity',state.specularIntensity);
+    s('emissiveIntensity',Math.min(0.25,state.emissiveIntensity));
+    s('envMapIntensity',Math.max(0.5,Math.min(1.0,state.envMapIntensity)));
+    if('iridescenceThicknessRange' in mat) mat.iridescenceThicknessRange=[state.iridescenceThicknessMin,state.iridescenceThicknessMax];
+    if(mat.emissive&&'r' in mat.emissive){
+      const h=state.emissiveColor.replace('#','');
+      mat.emissive.r=parseInt(h.slice(0,2),16)/255; mat.emissive.g=parseInt(h.slice(2,4),16)/255; mat.emissive.b=parseInt(h.slice(4,6),16)/255;
+    }
+  }
+  if (unis) {
+    const t=(v,...ks)=>{ for(const k of ks)if(unis[k]!==undefined){unis[k].value=v;break;} };
+    t(state.displacementScale,'displacementScale','uAmplitude','uDisplacementScale','amplitude','waveHeight');
+    t(state.viscosity,'frequency','uFrequency','uViscosity','noiseFreq','waveFrequency');
+    t(state.speed,'speed','uSpeed','uFlowSpeed','timeScale','uTimeScale');
+    t(state.refraction,'refraction','uRefraction','uRefractionIntensity','refractionRatio');
+    t(state.chromaticAberration,'chromaticAberration','uAberration','uChromaticAberration','rgbShift');
+    t(state.fresnelPower,'fresnelPower','uFresnelPower','uFresnelMultiplier','fresnelBias');
+  }
+  applySceneLights();
+  if(typeof app.setRain==='function')app.setRain(state.rain);else if('rain' in app)app.rain=state.rain;
+}
+
+// ─────────────────────────────────────────────────────────
+//  TEXTURE — commit on release only
+// ─────────────────────────────────────────────────────────
+function buildTex(W=window.innerWidth,H=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,2)){
+  const c=document.createElement('canvas'); c.width=W*dpr; c.height=H*dpr;
+  const ctx=c.getContext('2d'); ctx.scale(dpr,dpr);
+  if(state.gradientEnabled){
+    const a=(state.gradientAngle-90)*(Math.PI/180);
+    const cx=Math.cos(a)*W/2,cy=Math.sin(a)*H/2;
+    const g=ctx.createLinearGradient(W/2-cx,H/2-cy,W/2+cx,H/2+cy);
+    g.addColorStop(0,state.backgroundColor); g.addColorStop(1,state.backgroundColor2); ctx.fillStyle=g;
+  } else ctx.fillStyle=state.backgroundColor;
+  ctx.fillRect(0,0,W,H);
+  const fs=Math.min(W*0.14,H*0.22);
+  ctx.font=`900 ${fs}px -apple-system,"SF Pro Display","Helvetica Neue",Arial,sans-serif`;
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.fillStyle=state.textColor;
+  const lines=Array.isArray(state.text)?state.text:state.text.split(',').map(s=>s.trim());
+  const lh=fs*1.05,sy=H/2-(lines.length-1)*lh/2;
+  lines.forEach((l,i)=>ctx.fillText(l,W/2,sy+i*lh));
+  return c.toDataURL('image/png');
+}
+async function commitTex(){if(!app)return;try{await app.loadImage(buildTex());}catch(e){}}
+
+// ─────────────────────────────────────────────────────────
+//  SNAPSHOT
+//  WebGL canvas has preserveDrawingBuffer:false — blit in same RAF.
+//  We close the panel first to show the full canvas, then capture.
+// ─────────────────────────────────────────────────────────
+function takeSnapshot() {
+  const wasOpen = isPanelOpen();
+  // Hide panel so it doesn't overlay the canvas
+  if (wasOpen) closePanel();
+
+  // Two RAFs: first lets panel slide out of the way, second catches a freshly rendered frame.
+  // With preserveDrawingBuffer:true (injected before lib loads) the backbuffer survives.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // canvas.width/height are the actual WebGL backbuffer dimensions (devicePixelRatio × CSS size)
+      const W = canvas.width;
+      const H = canvas.height;
+
+      try {
+        const out = document.createElement('canvas');
+        out.width  = W;
+        out.height = H;
+        const ctx2 = out.getContext('2d');
+        ctx2.drawImage(canvas, 0, 0);
+        const url = out.toDataURL('image/png', 1.0);
+        // A valid non-blank blit produces a data URL well over 10 KB
+        if (url && url.length > 10000) {
+          doDownload(url);
+        } else {
+          // preserveDrawingBuffer didn't work (some browsers/drivers ignore the hint)
+          // Fall back to a high-res 2D composite of the current gradient + text
+          fallbackSnapshot(W, H);
+        }
+      } catch(e) {
+        console.error('Snapshot blit failed:', e);
+        fallbackSnapshot(W, H);
+      }
+
+      if (wasOpen) openPanel();
+    });
+  });
+}
+
+function fallbackSnapshot(W, H) {
+  // Render a pixel-perfect still of the background gradient + text at full resolution.
+  // This won't have the liquid distortion, but captures the correct colours and layout.
+  const out = document.createElement('canvas');
+  out.width  = W;
+  out.height = H;
+  const ctx = out.getContext('2d');
+  // W/H are in physical pixels; vw/vh are CSS pixels
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const dpr = W / vw;   // should equal devicePixelRatio
+
+  if (state.gradientEnabled) {
+    const a  = (state.gradientAngle - 90) * (Math.PI / 180);
+    const cx = Math.cos(a) * W / 2, cy = Math.sin(a) * H / 2;
+    const g  = ctx.createLinearGradient(W/2-cx, H/2-cy, W/2+cx, H/2+cy);
+    g.addColorStop(0, state.backgroundColor);
+    g.addColorStop(1, state.backgroundColor2);
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = state.backgroundColor;
+  }
+  ctx.fillRect(0, 0, W, H);
+
+  const fs = Math.min(W * 0.14, H * 0.22);
+  ctx.font         = `900 ${fs}px -apple-system,"SF Pro Display","Helvetica Neue",Arial,sans-serif`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign    = 'center';
+  ctx.fillStyle    = state.textColor;
+  const lines = Array.isArray(state.text) ? state.text : state.text.split(',').map(s=>s.trim());
+  const lh = fs * 1.05, sy = H/2 - (lines.length-1)*lh/2;
+  lines.forEach((l, i) => ctx.fillText(l, W/2, sy + i*lh));
+  doDownload(out.toDataURL('image/png', 1.0));
+}
+
+function doDownload(url){
+  const a=document.createElement('a'); a.download=`Liquidity_${Date.now()}.png`; a.href=url; a.click();
+}
+
+// ─────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────
+async function initApp(){
+  app=LiquidBackground(canvas);
+  await new Promise(r=>setTimeout(r,350));
+  discover();
+  await commitTex();
+  applyUniforms();
+  syncUI();
+}
+
+// ─────────────────────────────────────────────────────────
+//  ACCORDION
+// ─────────────────────────────────────────────────────────
+function setupAccordion(){
+  document.querySelectorAll('.acc-hd').forEach(hd=>{
+    hd.addEventListener('click',()=>{
+      const body=document.getElementById('acc-'+hd.dataset.acc);
+      const open=hd.classList.toggle('open');
+      body.classList.toggle('open',open);
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+//  SYNC UI
+// ─────────────────────────────────────────────────────────
+function fmt(k,v){
+  if(k.includes('Angle'))return Math.round(v)+'°';
+  if(k==='interval')return String(Math.round(v));
+  if(k.includes('ThicknessM'))return String(Math.round(v));
+  if(['sceneLightX','sceneLightY','sceneLightZ'].includes(k))return Number(v).toFixed(1);
+  return Number(v).toFixed(2);
+}
+function syncUI(){
+  const s=state;
+  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  sv('i-text',Array.isArray(s.text)?s.text.join(', '):s.text);
+  document.getElementById('i-gradientEnabled').checked=s.gradientEnabled;
+  sv('i-backgroundColor',s.backgroundColor); sv('i-backgroundColor2',s.backgroundColor2);
+  sv('i-textColor',s.textColor); sv('i-emissiveColor',s.emissiveColor);
+  document.getElementById('i-rain').checked=s.rain;
+  document.getElementById('i-autoAdvance').checked=s.autoAdvance;
+  document.getElementById('gc-b').style.display=s.gradientEnabled?'block':'none';
+  document.getElementById('gc-angle').style.display=s.gradientEnabled?'flex':'none';
+  const ic=document.getElementById('ic');
+  ic.style.opacity=s.autoAdvance?'1':'0.5'; ic.style.pointerEvents=s.autoAdvance?'auto':'none';
+  ['gradientAngle','displacementScale','viscosity','speed','refraction','chromaticAberration','fresnelPower',
+   'ior','transmission','thickness','metalness','roughness','clearcoat','clearcoatRoughness','sheen','sheenRoughness',
+   'iridescence','iridescenceIOR','iridescenceThicknessMin','iridescenceThicknessMax',
+   'specularIntensity','emissiveIntensity','envMapIntensity','interval',
+   'sceneLightIntensity','sceneLightX','sceneLightY','sceneLightZ'
+  ].forEach(k=>{
+    const el=document.getElementById('i-'+k),vl=document.getElementById('v-'+k);
+    if(el)el.value=s[k]; if(vl)vl.textContent=fmt(k,s[k]);
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+//  EVENTS
+// ─────────────────────────────────────────────────────────
+function setupEvents(){
+  document.getElementById('menu-toggle').onclick=openPanel;
+  document.getElementById('menu-close').onclick=closePanel;
+  document.getElementById('info-trigger').onclick=()=>document.getElementById('info-modal').classList.add('active');
+  document.getElementById('modal-close').onclick=()=>document.getElementById('info-modal').classList.remove('active');
+
+  const texRange=(id,key)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',e=>{state[key]=parseFloat(e.target.value);const vl=document.getElementById('v-'+key);if(vl)vl.textContent=fmt(key,state[key]);});
+    el.addEventListener('pointerup',()=>commitTex()); el.addEventListener('touchend',()=>commitTex());
+  };
+  texRange('i-gradientAngle','gradientAngle');
+
+  const texColor=(id,key)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',e=>state[key]=e.target.value);
+    el.addEventListener('change',e=>{state[key]=e.target.value;commitTex();});
+  };
+  texColor('i-backgroundColor','backgroundColor'); texColor('i-backgroundColor2','backgroundColor2'); texColor('i-textColor','textColor');
+
+  let txtT=null;
+  document.getElementById('i-text').addEventListener('input',e=>{
+    state.text=e.target.value.split(',').map(s=>s.trim()); clearTimeout(txtT); txtT=setTimeout(commitTex,400);
+  });
+  document.getElementById('i-gradientEnabled').addEventListener('change',e=>{
+    state.gradientEnabled=e.target.checked;
+    document.getElementById('gc-b').style.display=state.gradientEnabled?'block':'none';
+    document.getElementById('gc-angle').style.display=state.gradientEnabled?'flex':'none';
+    commitTex();
+  });
+  document.getElementById('i-rain').onchange=e=>{state.rain=e.target.checked;applyUniforms();};
+
+  const uni=(id,key,clamp)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',e=>{
+      let v=parseFloat(e.target.value);if(clamp)v=clamp(v);
+      state[key]=v; const vl=document.getElementById('v-'+key);if(vl)vl.textContent=fmt(key,v); applyUniforms();
+    });
+  };
+  uni('i-displacementScale','displacementScale'); uni('i-viscosity','viscosity'); uni('i-speed','speed');
+  uni('i-refraction','refraction'); uni('i-chromaticAberration','chromaticAberration'); uni('i-fresnelPower','fresnelPower');
+  uni('i-ior','ior'); uni('i-transmission','transmission'); uni('i-thickness','thickness');
+  uni('i-metalness','metalness'); uni('i-roughness','roughness'); uni('i-clearcoat','clearcoat');
+  uni('i-clearcoatRoughness','clearcoatRoughness'); uni('i-sheen','sheen'); uni('i-sheenRoughness','sheenRoughness');
+  uni('i-iridescence','iridescence'); uni('i-iridescenceIOR','iridescenceIOR');
+  uni('i-iridescenceThicknessMin','iridescenceThicknessMin'); uni('i-iridescenceThicknessMax','iridescenceThicknessMax');
+  uni('i-specularIntensity','specularIntensity');
+  uni('i-emissiveIntensity','emissiveIntensity',v=>Math.min(0.25,v));
+  uni('i-envMapIntensity','envMapIntensity',v=>Math.max(0.5,Math.min(1.0,v)));
+  document.getElementById('i-emissiveColor').addEventListener('change',e=>{state.emissiveColor=e.target.value;applyUniforms();});
+
+  document.getElementById('i-autoAdvance').onchange=e=>{
+    state.autoAdvance=e.target.checked;
+    const ic=document.getElementById('ic'); ic.style.opacity=state.autoAdvance?'1':'0.5'; ic.style.pointerEvents=state.autoAdvance?'auto':'none';
+    resetAuto();
+  };
+  document.getElementById('i-interval').addEventListener('input',e=>{
+    state.interval=parseInt(e.target.value); document.getElementById('v-interval').textContent=state.interval; resetAuto();
+  });
+
+  document.getElementById('btn-randomize').onclick=()=>triggerTransition(randomSettings());
+  document.getElementById('btn-reset').onclick=()=>triggerTransition({...DEFAULTS});
+  document.getElementById('btn-snap').onclick=takeSnapshot;
+  document.getElementById('btn-export').onclick=()=>{
+    const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`SilentLiquidity_${Date.now()}.json`; a.click();
+  };
+  document.getElementById('btn-import').onclick=()=>document.getElementById('file-in').click();
+  document.getElementById('file-in').onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader(); r.onload=ev=>{try{triggerTransition(JSON.parse(ev.target.result));}catch{alert('Invalid settings file.');}};r.readAsText(f);
+  };
+
+  // Canvas click/tap — only when panel closed
+  let cst=0;
+  canvas.addEventListener('pointerdown',()=>{if(!isPanelOpen())cst=Date.now();});
+  canvas.addEventListener('pointerup',()=>{
+    if(!isPanelOpen()&&Date.now()-cst<300&&!document.getElementById('info-modal').classList.contains('active'))
+      triggerTransition(randomSettings());
+  });
+}
+
+function resetAuto(){
+  clearInterval(autoTimer);
+  if(state.autoAdvance)autoTimer=setInterval(()=>triggerTransition(randomSettings()),state.interval*1000);
+}
+
+// ─────────────────────────────────────────────────────────
+//  RANDOMIZE
+// ─────────────────────────────────────────────────────────
+function getLum(hex){
+  const rgb=hex.replace('#','').match(/.{2}/g).map(x=>parseInt(x,16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));
+  return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
+}
+function randomSettings(){
+  const BG=["#fafafa","#f0f4ff","#fff0f5","#f0fff4","#f5f0ff","#fffbeb",
+            "#000000","#0f172a","#1e1b4b","#4338ca","#7c3aed","#ec4899",
+            "#0f766e","#3b82f6","#f43f5e","#06b6d4","#10b981","#84cc16","#f97316"];
+  const EM=["#000000","#ff2255","#2255ff","#22ffdd","#ffcc00","#ff6600","#9922ff"];
+  const PH=[["Silent","Liquidity"],["Flow","State"],["Deep","Wave"],["Digital","Void"],["Dark","Matter"],["Pure","Form"],["Liquid","Glass"]];
+  const b1=BG[BG.length*Math.random()|0]; let b2=BG[BG.length*Math.random()|0]; while(b2===b1)b2=BG[BG.length*Math.random()|0];
+  const al=(getLum(b1)+getLum(b2))/2; let tc=BG[BG.length*Math.random()|0];
+  if(Math.abs(getLum(tc)-al)<.45)tc=al>.5?"#000000":"#fafafa";
+  const useIrid=Math.random()>.5,useSheen=Math.random()>.5,useEmiss=Math.random()>.6;
+  return {
+    text:PH[PH.length*Math.random()|0],
+    backgroundColor:b1,backgroundColor2:b2,gradientEnabled:true,
+    gradientAngle:Math.floor(Math.random()*360),textColor:tc,
+    displacementScale:.5+Math.random()*55,viscosity:.01+Math.random()*10,speed:.1+Math.random()*12,
+    refraction:Math.random()*12,chromaticAberration:Math.random()*1.2,fresnelPower:.2+Math.random()*18,
+    metalness:Math.random(),roughness:Math.random(),thickness:.1+Math.random()*8,ior:1+Math.random()*1.4,transmission:Math.random()*.7,
+    clearcoat:Math.random()>.5?Math.random():0,clearcoatRoughness:Math.random(),
+    sheen:useSheen?Math.random():0,sheenRoughness:Math.random(),
+    iridescence:useIrid?Math.random():0,iridescenceIOR:1+Math.random()*1.4,
+    iridescenceThicknessMin:Math.random()*300,iridescenceThicknessMax:200+Math.random()*700,
+    specularIntensity:Math.random()*1.5,
+    emissiveIntensity:useEmiss?Math.random()*0.25:0,
+    emissiveColor:EM[EM.length*Math.random()|0],
+    envMapIntensity:0.5+Math.random()*0.5,
+    rain:Math.random()>.88
+  };
+}
+
+async function triggerTransition(ns=null){
+  if(isRand)return; isRand=true;
+  fadeEl.classList.add('active');
+  await new Promise(r=>setTimeout(r,420));
+  if(ns)state={...state,...ns};
+  await commitTex(); applyUniforms(); syncUI();
+  fadeEl.classList.remove('active'); isRand=false;
+}
+
+// ─────────────────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────────────────
+window.addEventListener('load',async()=>{
+  state={...DEFAULTS,...randomSettings()};
+  setupAccordion();
+  await initApp();
+  setupEvents();
+});
+window.addEventListener('resize',async()=>{if(!app)return;await commitTex();applyUniforms();});
+</script>
+</body>
+</html>
